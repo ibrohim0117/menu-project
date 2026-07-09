@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menyu Boshqaruvi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #f3f1ea;   /* fon */
+    --card:    #fbfaf6;   /* karta yuzasi */
+    --ink:     #221f1a;   /* asosiy matn */
+    --muted:   #8a8477;   /* ikkilamchi matn */
+    --line:    #e2ddd0;   /* nozik chiziqlar */
+    --green:   #2f6b4f;   /* asosiy accent */
+    --green-d: #255740;
+    --ochre:   #b5762a;   /* narx / urg'u */
+    --brick:   #a83a32;   /* o'chirish */
+    --shadow:  0 1px 2px rgba(34,31,26,.04), 0 8px 30px rgba(34,31,26,.06);
+    --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .masthead { margin-bottom: 34px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ochre); font-weight: 600; margin-bottom: 6px;
+  }
+  .masthead-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  h1.title {
+    font-family: "Fraunces", serif; font-weight: 600;
+    font-size: clamp(30px, 6vw, 44px); line-height: 1.05; letter-spacing: -.01em;
+  }
+  .status {
+    display: flex; align-items: center; gap: 10px; font-size: 13px; padding-bottom: 6px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.on { background: var(--green); }
+  .status .label { color: var(--muted); }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: 26px; margin-bottom: 22px;
+    animation: rise .5s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+
+  .card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .card-head h2 {
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; letter-spacing: -.01em;
+  }
+  .card-head .count { font-size: 13px; color: var(--muted); }
+
+  /* ---------- Forms ---------- */
+  label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 6px;
+          letter-spacing: .02em; font-weight: 500; }
+  input, select, textarea {
+    width: 100%; padding: 12px 14px; font: inherit; font-size: 14px;
+    color: var(--ink); background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(47,107,79,.12);
+  }
+  .field { margin-bottom: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 160px; gap: 14px; }
+  @media (max-width: 520px){ .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ---------- Buttons ---------- */
+  button { cursor: pointer; font: inherit; border: none; border-radius: 10px; transition: all .15s; }
+  .btn {
+    background: var(--green); color: #fbfaf6; font-weight: 500; font-size: 14px;
+    padding: 12px 20px; width: 100%;
+  }
+  .btn:hover { background: var(--green-d); }
+  .btn:active { transform: translateY(1px); }
+  .btn.auto { width: auto; }
+  .icon-btn {
+    background: transparent; border: 1px solid var(--line); color: var(--muted);
+    padding: 6px 12px; font-size: 12.5px; font-weight: 500;
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--muted); }
+  .icon-btn.danger:hover { color: #fff; background: var(--brick); border-color: var(--brick); }
+  .link-btn { background: none; color: var(--muted); font-size: 13px; text-decoration: underline; padding: 4px; }
+  .link-btn:hover { color: var(--ink); }
+
+  /* ---------- Tabs (auth) ---------- */
+  .tabs { display: inline-flex; background: var(--paper); border: 1px solid var(--line);
+          border-radius: 999px; padding: 4px; margin-bottom: 20px; }
+  .tab { padding: 8px 20px; border-radius: 999px; font-size: 13.5px; font-weight: 500;
+         color: var(--muted); }
+  .tab.active { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+
+  /* ---------- Category chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 8px 7px 15px; font-size: 13.5px;
+  }
+  .chip .x { display: inline-flex; width: 20px; height: 20px; border-radius: 50%;
+             align-items: center; justify-content: center; color: var(--muted);
+             background: var(--paper); font-size: 14px; line-height: 1; }
+  .chip .x:hover { background: var(--brick); color: #fff; }
+  .chip .edit { color: var(--muted); font-size: 12px; }
+  .chip .edit:hover { color: var(--green); }
+
+  /* ---------- Filter bar ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .filter-chip {
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 15px; font-size: 13px; font-weight: 500; color: var(--muted);
+  }
+  .filter-chip:hover { border-color: var(--muted); color: var(--ink); }
+  .filter-chip.active { background: var(--green); border-color: var(--green); color: #fbfaf6; }
+
+  /* ---------- Menu list (signature: printed-menu rows) ---------- */
+  .menu-section + .menu-section { margin-top: 22px; }
+  .section-name {
+    font-family: "Fraunces", serif; font-size: 16px; font-weight: 600;
+    color: var(--green); letter-spacing: .01em; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-name::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  .dish { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .dish:last-child { border-bottom: none; }
+  .dish-top { display: flex; align-items: baseline; gap: 6px; }
+  .dish-name { font-family: "Fraunces", serif; font-size: 17px; font-weight: 500; white-space: nowrap; }
+  .leader { flex: 1; border-bottom: 1.5px dotted var(--line); transform: translateY(-3px); min-width: 20px; }
+  .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+  .dish-desc { font-size: 13.5px; color: var(--muted); margin-top: 3px; max-width: 60ch; }
+  .dish-foot { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+  .tag { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+         background: var(--paper); border-radius: 6px; padding: 3px 8px; }
+
+  /* ---------- Messages / states ---------- */
+  .msg { font-size: 13px; padding: 11px 15px; border-radius: 10px; margin-bottom: 16px; display: none; }
+  .msg.err { display: block; background: #fbeceb; color: #8f2e27; border: 1px solid #f1cfcc; }
+  .msg.ok  { display: block; background: #e9f3ee; color: #235741; border: 1px solid #cfe6da; }
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 26px 10px; }
+  .hidden { display: none !important; }
+  .sep { height: 1px; background: var(--line); margin: 22px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <div class="masthead">
+    <div class="eyebrow">Restoran · Boshqaruv paneli</div>
+    <div class="masthead-row">
+      <h1 class="title">Menyu Boshqaruvi</h1>
+      <div class="status">
+        <span id="dot" class="dot"></span>
+        <span id="statusLabel" class="label">Kirilmagan</span>
+        <button id="logoutBtn" class="link-btn hidden" onclick="logout()">Chiqish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ AUTH ============ -->
+  <div id="authCard" class="card">
+    <div class="tabs">
+      <div class="tab active" id="tabLogin" onclick="switchTab('login')">Kirish</div>
+      <div class="tab" id="tabRegister" onclick="switchTab('register')">Ro'yxatdan o'tish</div>
+    </div>
+    <div id="authMsg" class="msg"></div>
+
+    <div id="loginForm">
+      <div class="field">
+        <label>Foydalanuvchi nomi</label>
+        <input id="loginUsername" type="text" placeholder="username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Parol</label>
+        <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn" onclick="login()">Kirish</button>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <div class="field">
+        <label>Foydalanuvchi nomi</label>
+        <input id="regUsername" type="text" placeholder="username">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="regEmail" type="email" placeholder="email@example.com">
+      </div>
+      <div class="field">
+        <label>Parol</label>
+        <input id="regPassword" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn" onclick="register()">Ro'yxatdan o'tish</button>
+    </div>
+  </div>
+
+  <!-- ============ CATEGORIES ============ -->
+  <div id="catCard" class="card hidden">
+    <div class="card-head">
+      <h2>Kategoriyalar</h2>
+      <span id="catCount" class="count"></span>
+    </div>
+    <div id="catMsg" class="msg"></div>
+    <div class="grid-2" style="margin-bottom:18px">
+      <input id="newCatName" type="text" placeholder="Yangi kategoriya, masalan “Ichimliklar”">
+      <button class="btn" onclick="createCategory()">Qo'shish</button>
+    </div>
+    <div id="catChips" class="chips"></div>
+  </div>
+
+  <!-- ============ ADD MENU ITEM ============ -->
+  <div id="itemFormCard" class="card hidden">
+    <div class="card-head"><h2>Yangi taom qo'shish</h2></div>
+    <div id="itemMsg" class="msg"></div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Taom nomi</label>
+        <input id="itemName" type="text" placeholder="masalan “Lag‘mon”">
+      </div>
+      <div class="field">
+        <label>Narxi</label>
+        <input id="itemPrice" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="field">
+      <label>Kategoriya</label>
+      <select id="itemCategory"></select>
+    </div>
+    <div class="field">
+      <label>Tavsif (ixtiyoriy)</label>
+      <textarea id="itemDesc" placeholder="Qisqacha tavsif..."></textarea>
+    </div>
+    <button class="btn auto" onclick="createItem()">Taomni saqlash</button>
+  </div>
+
+  <!-- ============ MENU LIST ============ -->
+  <div id="menuCard" class="card hidden">
+    <div class="card-head">
+      <h2>Menyu</h2>
+      <span id="itemCount" class="count"></span>
+    </div>
+    <div id="menuFilters" class="filters"></div>
+    <div id="menuList"></div>
+  </div>
+
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000/api";
+const ITEM_CAT_PARAM = "category";   // backend filter nomi (kerak bo'lsa "category_id" ga o'zgartiring)
+let currentFilter = null;            // null = hammasi, aks holda kategoriya id
+const mem = {};
+const store = {
+  get:(k)=>{ try{return localStorage.getItem(k);}catch(e){return mem[k]||null;} },
+  set:(k,v)=>{ try{localStorage.setItem(k,v);}catch(e){mem[k]=v;} },
+  del:(k)=>{ try{localStorage.removeItem(k);}catch(e){delete mem[k];} }
+};
+const getAccess = ()=>store.get("access");
+const getRefresh = ()=>store.get("refresh");
+const isAuthed = ()=>!!getAccess();
+
+let categories = [];   // xotirada saqlanadi (dropdown va guruhlash uchun)
+
+/* ---------- UI ---------- */
+function switchTab(w){
+  const login = w==="login";
+  tabLogin.classList.toggle("active", login);
+  tabRegister.classList.toggle("active", !login);
+  loginForm.classList.toggle("hidden", !login);
+  registerForm.classList.toggle("hidden", login);
+  hideMsg("authMsg");
+}
+function showMsg(id, t, type){ const el=document.getElementById(id); el.textContent=t; el.className="msg "+(type==="ok"?"ok":"err"); }
+function hideMsg(id){ document.getElementById(id).className="msg"; }
+
+function refreshUI(){
+  const a = isAuthed();
+  authCard.classList.toggle("hidden", a);
+  catCard.classList.toggle("hidden", !a);
+  itemFormCard.classList.toggle("hidden", !a);
+  menuCard.classList.toggle("hidden", !a);
+  logoutBtn.classList.toggle("hidden", !a);
+  dot.classList.toggle("on", a);
+  statusLabel.textContent = a ? "Tizimga kirildi" : "Kirilmagan";
+  if (a) init();
+}
+async function init(){ await loadCategories(); await loadItems(); }
+
+/* ---------- Fetch (401 -> refresh -> retry) ---------- */
+async function apiFetch(url, opts={}, retry=true){
+  opts.headers = opts.headers || {};
+  if (isAuthed()) opts.headers["Authorization"] = "Bearer " + getAccess();
+  const res = await fetch(url, opts);
+  if (res.status===401 && retry && getRefresh()){
+    if (await tryRefresh()) return apiFetch(url, opts, false);
+    logout(); throw new Error("session expired");
+  }
+  return res;
+}
+async function tryRefresh(){
+  try{
+    const r = await fetch(API+"/auth/refresh/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ refresh:getRefresh() })
+    });
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d.access){ store.set("access", d.access); return true; }
+    return false;
+  }catch(e){ return false; }
+}
+
+/* Barcha sahifalarni yuklaydi (backend paginatsiyasini bosib o'tadi) */
+async function fetchAll(url){
+  let out = [];
+  let next = url;
+  while(next){
+    const r = await apiFetch(next);
+    if(!r.ok) throw new Error("fetch failed: " + r.status);
+    const d = await r.json();
+    if(Array.isArray(d)){ out = out.concat(d); break; }
+    out = out.concat(d.results || []);
+    next = d.next;
+  }
+  return out;
+}
+
+/* ---------- Auth ---------- */
+async function login(){
+  const username = loginUsername.value.trim(), password = loginPassword.value;
+  if(!username||!password) return showMsg("authMsg","Barcha maydonlarni to'ldiring.","err");
+  try{
+    const r = await fetch(API+"/auth/login/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ username, password })
+    });
+    const d = await r.json();
+    if(!r.ok) return showMsg("authMsg", d.detail || "Login yoki parol noto'g'ri.", "err");
+    store.set("access", d.access); store.set("refresh", d.refresh);
+    window.location.href = "index.html";
+  }catch(e){ showMsg("authMsg","Serverga ulanib bo'lmadi. Django va CORS tekshiring.","err"); }
+}
+async function register(){
+  const username = regUsername.value.trim(), email = regEmail.value.trim(), password = regPassword.value;
+  if(!username||!password) return showMsg("authMsg","Username va parol majburiy.","err");
+  try{
+    const r = await fetch(API+"/auth/register/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ username, email, password })
+    });
+    const d = await r.json();
+    if(!r.ok){
+      const t = typeof d==="object" ? Object.entries(d).map(([k,v])=>k+": "+v).join("  |  ") : "Xatolik.";
+      return showMsg("authMsg", t, "err");
+    }
+    showMsg("authMsg","Muvaffaqiyatli! Endi kiring.","ok");
+    switchTab("login"); loginUsername.value = username;
+  }catch(e){ showMsg("authMsg","Serverga ulanib bo'lmadi. Django va CORS tekshiring.","err"); }
+}
+function logout(){ store.del("access"); store.del("refresh"); categories=[]; refreshUI(); }
+
+/* ---------- Categories ---------- */
+const catName = (c)=> c.name ?? c.title ?? c.category ?? "(nomsiz)";
+
+async function loadCategories(){
+  try{
+    categories = await fetchAll(API+"/categories/");
+  }catch(e){ categories = []; }
+  renderCategories();
+  fillCategoryDropdown();
+  renderFilters();
+}
+function renderFilters(){
+  // ag'ar filterlangan kategoriya o'chirilgan bo'lsa, "hammasi"ga qaytaramiz
+  if (currentFilter !== null && !categories.some(c=>String(c.id)===String(currentFilter))) currentFilter = null;
+  const chips = [`<button class="filter-chip ${currentFilter===null?'active':''}" data-f="all">Hammasi</button>`];
+  categories.forEach(c=>{
+    const on = String(currentFilter)===String(c.id);
+    chips.push(`<button class="filter-chip ${on?'active':''}" data-f="${c.id}">${esc(catName(c))}</button>`);
+  });
+  menuFilters.innerHTML = chips.join("");
+  menuFilters.querySelectorAll("[data-f]").forEach(b=>{
+    b.onclick = ()=>{
+      currentFilter = b.dataset.f==="all" ? null : b.dataset.f;
+      renderFilters();
+      loadItems();
+    };
+  });
+}
+function renderCategories(){
+  catCount.textContent = categories.length ? categories.length+" ta" : "";
+  if(!categories.length){ catChips.innerHTML = '<span class="empty" style="padding:6px">Hali kategoriya yo\'q.</span>'; return; }
+  catChips.innerHTML = "";
+  categories.forEach(c=>{
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.innerHTML = `<span>${esc(catName(c))}</span>
+      <button class="edit" title="Tahrirlash">✎</button>
+      <button class="x" title="O'chirish">×</button>`;
+    chip.querySelector(".edit").onclick = ()=>editCategory(c.id, catName(c));
+    chip.querySelector(".x").onclick = ()=>deleteCategory(c.id);
+    catChips.appendChild(chip);
+  });
+}
+function fillCategoryDropdown(){
+  itemCategory.innerHTML = categories.length
+    ? categories.map(c=>`<option value="${c.id}">${esc(catName(c))}</option>`).join("")
+    : '<option value="">— avval kategoriya qo\'shing —</option>';
+}
+async function createCategory(){
+  const name = newCatName.value.trim();
+  if(!name) return showMsg("catMsg","Kategoriya nomini kiriting.","err");
+  try{
+    const r = await apiFetch(API+"/categories/", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ name })
+    });
+    if(!r.ok){ const d=await r.json().catch(()=>({})); return showMsg("catMsg", errText(d,"Qo'shishda xatolik."), "err"); }
+    newCatName.value=""; hideMsg("catMsg"); loadCategories();
+  }catch(e){ showMsg("catMsg","So'rovda xatolik.","err"); }
+}
+async function editCategory(id, cur){
+  const name = prompt("Yangi nom:", cur);
+  if(name===null || !name.trim()) return;
+  try{
+    const r = await apiFetch(API+"/categories/"+id+"/", {
+      method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ name:name.trim() })
+    });
+    if(!r.ok) return showMsg("catMsg","Tahrirlashda xatolik.","err");
+    init();
+  }catch(e){ showMsg("catMsg","So'rovda xatolik.","err"); }
+}
+async function deleteCategory(id){
+  if(!confirm("Kategoriya o'chirilsinmi? Unga bog'liq taomlarga ta'sir qilishi mumkin.")) return;
+  try{
+    const r = await apiFetch(API+"/categories/"+id+"/", { method:"DELETE" });
+    if(!r.ok && r.status!==204) return showMsg("catMsg","O'chirishda xatolik.","err");
+    init();
+  }catch(e){ showMsg("catMsg","So'rovda xatolik.","err"); }
+}
+
+/* ---------- Menu items ---------- */
+const itemName_ = (i)=> i.name ?? i.title ?? "(nomsiz)";
+function itemCatId(i){
+  const c = i.category;
+  if (c && typeof c==="object") return c.id;
+  return c ?? null;                       // id yoki null
+}
+function catLabelById(id){
+  const c = categories.find(x=>String(x.id)===String(id));
+  return c ? catName(c) : "Kategoriyasiz";
+}
+function fmtPrice(p){
+  if (p===null || p===undefined || p==="") return "";
+  const n = Number(p);
+  if (Number.isNaN(n)) return String(p);
+  return n.toLocaleString("uz-UZ") + " so'm";
+}
+
+let items = [];
+async function loadItems(){
+  menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
+  try{
+    const url = currentFilter
+      ? API + "/menu-items/?" + ITEM_CAT_PARAM + "=" + encodeURIComponent(currentFilter)
+      : API + "/menu-items/";
+    items = await fetchAll(url);
+  }catch(e){ items=[]; menuList.innerHTML='<div class="empty">Menyuni yuklab bo\'lmadi.</div>'; return; }
+  renderItems();
+}
+function renderItems(){
+  itemCount.textContent = items.length ? items.length+" ta taom" : "";
+  if(!items.length){
+    menuList.innerHTML = currentFilter
+      ? '<div class="empty">Bu kategoriyada taom yo\'q.</div>'
+      : '<div class="empty">Menyu bo\'sh. Yuqorida birinchi taomni qo\'shing.</div>';
+    return;
+  }
+
+  // kategoriya bo'yicha guruhlash (haqiqiy menyu kabi)
+  const groups = {};
+  items.forEach(i=>{ const k = itemCatId(i) ?? "none"; (groups[k] ||= []).push(i); });
+
+  let html = "";
+  // avval mavjud kategoriyalar tartibida, keyin qolganlari
+  const order = [...categories.map(c=>String(c.id)), ...Object.keys(groups).filter(k=>!categories.some(c=>String(c.id)===k))];
+  order.forEach(key=>{
+    const list = groups[key]; if(!list || !list.length) return;
+    const label = key==="none" ? "Kategoriyasiz" : catLabelById(key);
+    html += `<div class="menu-section"><div class="section-name">${esc(label)}</div>`;
+    list.forEach(i=> html += dishRow(i));
+    html += `</div>`;
+  });
+  menuList.innerHTML = html;
+
+  // tugmalarni bog'lash
+  menuList.querySelectorAll("[data-edit]").forEach(b=> b.onclick = ()=>editItem(b.dataset.edit));
+  menuList.querySelectorAll("[data-del]").forEach(b=> b.onclick = ()=>deleteItem(b.dataset.del));
+}
+function dishRow(i){
+  const price = fmtPrice(i.price);
+  const desc = i.description ? `<div class="dish-desc">${esc(i.description)}</div>` : "";
+  return `<div class="dish">
+    <div class="dish-top">
+      <span class="dish-name">${esc(itemName_(i))}</span>
+      <span class="leader"></span>
+      <span class="dish-price">${esc(price)}</span>
+    </div>
+    ${desc}
+    <div class="dish-foot">
+      <button class="icon-btn" data-edit="${i.id}">Tahrirlash</button>
+      <button class="icon-btn danger" data-del="${i.id}">O'chirish</button>
+    </div>
+  </div>`;
+}
+async function createItem(){
+  const name = itemName.value.trim();
+  const price = itemPrice.value;
+  const category = itemCategory.value;
+  const description = itemDesc.value.trim();
+  if(!name) return showMsg("itemMsg","Taom nomini kiriting.","err");
+  if(price==="") return showMsg("itemMsg","Narxni kiriting.","err");
+  if(!category) return showMsg("itemMsg","Avval kategoriya qo'shing va tanlang.","err");
+  const body = { name, price, category, description };
+  try{
+    const r = await apiFetch(API+"/menu-items/", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+    });
+    if(!r.ok){ const d=await r.json().catch(()=>({})); return showMsg("itemMsg", errText(d,"Saqlashda xatolik."), "err"); }
+    itemName.value=""; itemPrice.value=""; itemDesc.value="";
+    hideMsg("itemMsg"); loadItems();
+  }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }
+}
+async function editItem(id){
+  const it = items.find(x=>String(x.id)===String(id)); if(!it) return;
+  const name = prompt("Taom nomi:", itemName_(it)); if(name===null) return;
+  const price = prompt("Narxi:", it.price ?? ""); if(price===null) return;
+  const body = { name:name.trim(), price };
+  try{
+    const r = await apiFetch(API+"/menu-items/"+id+"/", {
+      method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+    });
+    if(!r.ok) return showMsg("itemMsg","Tahrirlashda xatolik.","err");
+    loadItems();
+  }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }
+}
+async function deleteItem(id){
+  if(!confirm("Taom o'chirilsinmi?")) return;
+  try{
+    const r = await apiFetch(API+"/menu-items/"+id+"/", { method:"DELETE" });
+    if(!r.ok && r.status!==204) return showMsg("itemMsg","O'chirishda xatolik.","err");
+    loadItems();
+  }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }
+}
+
+/* ---------- utils ---------- */
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function errText(d, fallback){ try{ return Object.entries(d).map(([k,v])=>k+": "+v).join(" | ") || fallback; }catch(e){ return fallback; } }
+
+/* Enter shortcuts */
+newCatName.addEventListener("keydown", e=>{ if(e.key==="Enter") createCategory(); });
+loginPassword.addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+
+refreshUI();
+</script>
+</body>
+</html>

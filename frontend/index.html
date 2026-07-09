@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menyu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #f3f1ea;
+    --card:    #fbfaf6;
+    --ink:     #221f1a;
+    --muted:   #8a8477;
+    --line:    #e2ddd0;
+    --green:   #2f6b4f;
+    --green-d: #255740;
+    --ochre:   #b5762a;
+    --brick:   #a83a32;
+    --shadow:  0 1px 2px rgba(34,31,26,.04), 0 8px 30px rgba(34,31,26,.06);
+    --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* ---------- Masthead ---------- */
+  .masthead { margin-bottom: 28px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ochre); font-weight: 600; margin-bottom: 6px;
+  }
+  .masthead-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  h1.title {
+    font-family: "Fraunces", serif; font-weight: 600;
+    font-size: clamp(30px, 6vw, 44px); line-height: 1.05; letter-spacing: -.01em;
+  }
+  .status { display: flex; align-items: center; gap: 9px; font-size: 13px; padding-bottom: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.on { background: var(--green); }
+  .status .label { color: var(--muted); }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 232px 1fr 250px;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 900px){ .layout { grid-template-columns: 1fr; } }
+
+  .side { position: sticky; top: 40px; }
+  @media (max-width: 900px){ .side { position: static; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: 22px; margin-bottom: 22px;
+    animation: rise .5s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Profile block ---------- */
+  .profile { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; }
+  .avatar {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    background: var(--green); color: #fbfaf6;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 19px;
+  }
+  .profile .who { min-width: 0; }
+  .profile .name { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .role-tag {
+    display: inline-block; margin-top: 3px; font-size: 11px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ochre);
+  }
+  .role-tag.staff { color: var(--green); }
+
+  /* ---------- Left nav ---------- */
+  .nav { display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    padding: 11px 13px; border-radius: 10px;
+    background: transparent; border: none; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 500; color: var(--ink);
+    text-align: left; transition: background .15s, color .15s;
+  }
+  .nav-btn:hover { background: var(--paper); }
+  .nav-btn svg { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; }
+  .nav-btn.logout { color: var(--muted); margin-top: 6px; }
+  .nav-btn.logout:hover { color: var(--brick); background: #fbeceb; }
+
+  /* ---------- Right sidebar: categories ---------- */
+  .side-head {
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 16px;
+    letter-spacing: -.01em; margin-bottom: 14px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  }
+  .side-head .count { font-family: "Inter", sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .cat-list { display: flex; flex-direction: column; gap: 4px; }
+  .cat-btn {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%; padding: 10px 13px; border-radius: 10px;
+    background: transparent; border: 1px solid transparent; cursor: pointer;
+    font: inherit; font-size: 13.5px; color: var(--ink); text-align: left;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .cat-btn:hover { background: var(--paper); }
+  .cat-btn.active { background: var(--green); color: #fbfaf6; }
+  .cat-btn .n { font-size: 12px; color: var(--muted); }
+  .cat-btn.active .n { color: rgba(251,250,246,.75); }
+
+  /* ---------- Menu (center) ---------- */
+  .card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .card-head h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: 22px; letter-spacing: -.01em; }
+  .card-head .count { font-size: 13px; color: var(--muted); }
+
+  .menu-section + .menu-section { margin-top: 22px; }
+  .section-name {
+    font-family: "Fraunces", serif; font-size: 16px; font-weight: 600;
+    color: var(--green); letter-spacing: .01em; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-name::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  .dish { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .dish:last-child { border-bottom: none; }
+  .dish-thumb { width: 58px; height: 58px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+    background: var(--paper); border: 1px solid var(--line); }
+  .dish-main { flex: 1; min-width: 0; }
+  .dish-top { display: flex; align-items: baseline; gap: 6px; }
+  .dish-name { font-family: "Fraunces", serif; font-size: 17px; font-weight: 500; white-space: nowrap; }
+  .leader { flex: 1; border-bottom: 1.5px dotted var(--line); transform: translateY(-3px); min-width: 20px; }
+  .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+  .dish-desc { font-size: 13.5px; color: var(--muted); margin-top: 3px; max-width: 60ch; }
+
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 26px 10px; }
+
+  /* ---------- Modal ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(34,31,26,.32);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 40;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: 0 20px 60px rgba(34,31,26,.22);
+    padding: 26px; width: 100%; max-width: 420px;
+    animation: rise .3s ease both;
+  }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-head h3 { font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; }
+  .modal-close {
+    background: transparent; border: none; cursor: pointer; color: var(--muted);
+    font-size: 22px; line-height: 1; width: 30px; height: 30px; border-radius: 8px;
+  }
+  .modal-close:hover { background: var(--paper); color: var(--ink); }
+
+  .kv { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .kv:last-child { border-bottom: none; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-weight: 500; text-align: right; }
+
+  .setting {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 13px 0; border-bottom: 1px solid var(--line);
+  }
+  .setting:last-child { border-bottom: none; }
+  .setting .s-name { font-size: 14px; font-weight: 500; }
+  .setting .s-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .track {
+    position: absolute; inset: 0; background: var(--line); border-radius: 999px;
+    cursor: pointer; transition: background .18s;
+  }
+  .track::before {
+    content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .switch input:checked + .track { background: var(--green); }
+  .switch input:checked + .track::before { transform: translateX(18px); }
+
+  .hidden { display: none !important; }
+
+  .na-tag { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--brick); background: #fbeceb; border: 1px solid #f1cfcc;
+    border-radius: 6px; padding: 2px 7px; margin-left: 9px; vertical-align: middle;
+    font-family: "Inter", sans-serif; font-weight: 600; white-space: nowrap; }
+
+  /* ---------- Compact view ---------- */
+  body.compact .dish { padding: 9px 0; }
+  body.compact .dish-desc { display: none; }
+  body.compact .dish-thumb { width: 40px; height: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">Restoran · Menyu</div>
+    <div class="masthead-row">
+      <h1 class="title">Menyu</h1>
+      <div class="status">
+        <span id="dot" class="dot on"></span>
+        <span id="statusLabel" class="label">Yuklanmoqda...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT: profile + nav -->
+    <aside class="side">
+      <div class="card">
+        <div class="profile">
+          <div id="avatar" class="avatar">·</div>
+          <div class="who">
+            <div id="profName" class="name">—</div>
+            <span id="profRole" class="role-tag">—</span>
+          </div>
+        </div>
+        <nav class="nav">
+          <button class="nav-btn" onclick="openProfile()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+            Profil
+          </button>
+          <button id="settingsNav" class="nav-btn hidden" onclick="location.href='settings.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+            Sozlamalar
+          </button>
+          <button class="nav-btn logout" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5M20 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+            Chiqish
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- CENTER: menu list -->
+    <main>
+      <div class="card">
+        <div class="card-head">
+          <h2>Taomlar</h2>
+          <span id="itemCount" class="count"></span>
+        </div>
+        <div id="menuList"></div>
+      </div>
+    </main>
+
+    <!-- RIGHT: categories -->
+    <aside class="side">
+      <div class="card">
+        <div class="side-head">
+          Kategoriyalar
+          <span id="catCount" class="count"></span>
+        </div>
+        <div id="catList" class="cat-list"></div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Profile modal -->
+<div id="profileModal" class="overlay" onclick="if(event.target===this)closeModal('profileModal')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Profil</h3>
+      <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+    </div>
+    <div id="profileBody"></div>
+  </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000/api";
+const MEDIA_ORIGIN = "http://127.0.0.1:8000";   // rasm nisbiy URL bo'lsa old qo'shiladi
+let currentFilter = null;     // null = hammasi
+let categories = [];
+let items = [];
+let currentUser = null;
+let isAdmin = false;
+
+const settings = {
+  hideEmpty: localStorage.getItem("set_hideEmpty") === "1",
+  compact:   localStorage.getItem("set_compact") === "1",
+};
+
+const hasAccess = !!localStorage.getItem("access");
+if (!hasAccess) window.location.href = "auth.html";
+
+function getAccess(){ return localStorage.getItem("access"); }
+function getRefresh(){ return localStorage.getItem("refresh"); }
+
+/* ---------- Fetch (401 -> refresh -> retry) ---------- */
+async function apiFetch(url, opts={}, retry=true){
+  opts.headers = opts.headers || {};
+  opts.headers["Authorization"] = "Bearer " + getAccess();
+  const res = await fetch(url, opts);
+  if (res.status === 401 && retry && getRefresh()){
+    if (await tryRefresh()) return apiFetch(url, opts, false);
+    logout();
+    throw new Error("Session muddati tugadi");
+  }
+  return res;
+}
+
+async function tryRefresh(){
+  try{
+    const r = await fetch(API+"/auth/refresh/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ refresh: getRefresh() })
+    });
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d.access){ localStorage.setItem("access", d.access); return true; }
+    return false;
+  }catch(e){ return false; }
+}
+
+function logout(){
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  window.location.href = "auth.html";
+}
+
+/* Barcha sahifalarni yuklaydi (backend paginatsiyasini bosib o'tadi) */
+async function fetchAll(url){
+  let out = [];
+  let next = url;
+  while(next){
+    const r = await apiFetch(next);
+    if(!r.ok) throw new Error("fetch failed: " + r.status);
+    const d = await r.json();
+    if(Array.isArray(d)){ out = out.concat(d); break; }
+    out = out.concat(d.results || []);
+    next = d.next;
+  }
+  return out;
+}
+
+/* ---------- User role ---------- */
+async function checkUserRole(){
+  try{
+    const r = await apiFetch(API + "/me/");
+    if (r.ok){
+      currentUser = await r.json();
+      isAdmin = !!currentUser.is_staff;
+      statusLabel.textContent = "Tizimga kirildi";
+    } else {
+      statusLabel.textContent = "Tizimga kirildi";
+    }
+  }catch(e){
+    statusLabel.textContent = "Aloqa yo'q";
+    isAdmin = false;
+  }
+  renderProfileHeader();
+  settingsNav.classList.toggle("hidden", !isAdmin);
+}
+
+function renderProfileHeader(){
+  const u = currentUser || {};
+  const name = u.username || u.name || "Foydalanuvchi";
+  avatar.textContent = (name.trim()[0] || "·").toUpperCase();
+  profName.textContent = name;
+  profRole.textContent = isAdmin ? "Administrator" : "Foydalanuvchi";
+  profRole.className = "role-tag" + (isAdmin ? " staff" : "");
+}
+
+async function init(){
+  await checkUserRole();
+  await loadCategories();
+  await loadItems();
+  applyCompact();
+}
+
+/* ---------- Categories ---------- */
+const catName = (c)=> c.name ?? c.title ?? c.category ?? "(nomsiz)";
+
+async function loadCategories(){
+  try{
+    categories = await fetchAll(API+"/categories/");
+  }catch(e){ categories = []; }
+}
+
+function countFor(catId){
+  return items.filter(i => String(itemCatId(i)) === String(catId)).length;
+}
+
+function renderCategories(){
+  catCount.textContent = categories.length ? categories.length + " ta" : "";
+  const total = items.length;
+  let html = `<button class="cat-btn ${currentFilter===null?'active':''}" data-f="all">
+      <span>Hammasi</span><span class="n">${total}</span></button>`;
+
+  categories.forEach(c=>{
+    const n = countFor(c.id);
+    if (settings.hideEmpty && n === 0) return;
+    const on = String(currentFilter) === String(c.id);
+    html += `<button class="cat-btn ${on?'active':''}" data-f="${c.id}">
+        <span>${esc(catName(c))}</span><span class="n">${n}</span></button>`;
+  });
+
+  if (!categories.length){
+    html += `<div class="empty" style="padding:10px">Kategoriya yo'q.</div>`;
+  }
+  catList.innerHTML = html;
+  catList.querySelectorAll("[data-f]").forEach(b=>{
+    b.onclick = ()=>{
+      currentFilter = b.dataset.f === "all" ? null : b.dataset.f;
+      renderCategories();
+      renderItems();
+    };
+  });
+}
+
+/* ---------- Menu items ---------- */
+const itemName_ = (i)=> i.name ?? i.title ?? "(nomsiz)";
+function itemCatId(i){
+  const c = i.category;
+  if (c && typeof c === "object") return c.id;
+  return c ?? null;
+}
+function catLabelById(id){
+  const c = categories.find(x => String(x.id) === String(id));
+  return c ? catName(c) : "Kategoriyasiz";
+}
+function fmtPrice(p){
+  if (p===null || p===undefined || p==="") return "";
+  const n = Number(p);
+  if (Number.isNaN(n)) return String(p);
+  return n.toLocaleString("uz-UZ") + " so'm";
+}
+function imgUrl(i){
+  const u = i.image;
+  if(!u) return "";
+  return /^https?:\/\//.test(u) ? u : MEDIA_ORIGIN + (u.startsWith("/") ? u : "/"+u);
+}
+
+async function loadItems(){
+  menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
+  try{
+    items = await fetchAll(API+"/menu-items/");
+  }catch(e){
+    items = [];
+    menuList.innerHTML = '<div class="empty">Menyuni yuklab bo\'lmadi.</div>';
+    return;
+  }
+  renderCategories();
+  renderItems();
+}
+
+function renderItems(){
+  const visible = currentFilter === null
+    ? items
+    : items.filter(i => String(itemCatId(i)) === String(currentFilter));
+
+  itemCount.textContent = visible.length ? visible.length + " ta taom" : "";
+
+  if(!visible.length){
+    menuList.innerHTML = currentFilter
+      ? '<div class="empty">Bu kategoriyada taom yo\'q.</div>'
+      : '<div class="empty">Menyu bo\'sh.</div>';
+    return;
+  }
+
+  const groups = {};
+  visible.forEach(i=>{ const k = itemCatId(i) ?? "none"; (groups[k] ||= []).push(i); });
+
+  const order = [
+    ...categories.map(c => String(c.id)),
+    ...Object.keys(groups).filter(k => !categories.some(c => String(c.id) === k))
+  ];
+
+  let html = "";
+  order.forEach(key=>{
+    const list = groups[key];
+    if(!list || !list.length) return;
+    const label = key === "none" ? "Kategoriyasiz" : catLabelById(key);
+    html += `<div class="menu-section"><div class="section-name">${esc(label)}</div>`;
+    list.forEach(i => html += dishRow(i));
+    html += `</div>`;
+  });
+  menuList.innerHTML = html;
+}
+
+function dishRow(i){
+  const price = fmtPrice(i.price);
+  const desc = i.description ? `<div class="dish-desc">${esc(i.description)}</div>` : "";
+  const na = i.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
+  const img = imgUrl(i);
+  const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : "";
+  return `<div class="dish">
+    ${thumb}
+    <div class="dish-main">
+      <div class="dish-top">
+        <span class="dish-name">${esc(itemName_(i))}${na}</span>
+        <span class="leader"></span>
+        <span class="dish-price">${esc(price)}</span>
+      </div>
+      ${desc}
+    </div>
+  </div>`;
+}
+
+/* ---------- Profile modal ---------- */
+function openProfile(){
+  const u = currentUser || {};
+  const rows = [
+    ["Foydalanuvchi", u.username || u.name || "—"],
+    ["Roli", isAdmin ? "Administrator" : "Foydalanuvchi"],
+  ];
+  if (u.email) rows.push(["Email", u.email]);
+  if (u.first_name || u.last_name) rows.push(["Ism", [u.first_name, u.last_name].filter(Boolean).join(" ")]);
+  if (u.id !== undefined) rows.push(["ID", u.id]);
+
+  profileBody.innerHTML = rows.map(([k,v])=>
+    `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`
+  ).join("");
+  openModal("profileModal");
+}
+
+/* Sozlamalar settings.html'da o'zgartiriladi; bu yerda faqat qo'llanadi */
+function applyCompact(){ document.body.classList.toggle("compact", settings.compact); }
+
+/* ---------- Modal helpers ---------- */
+function openModal(id){ document.getElementById(id).classList.add("open"); }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ closeModal("profileModal"); }
+});
+
+/* ---------- utils ---------- */
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+if (hasAccess) init();
+</script>
+</body>
+</html>
