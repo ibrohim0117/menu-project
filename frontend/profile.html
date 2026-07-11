@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil · Boshqaruv</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #f3f1ea;
+    --card:    #fbfaf6;
+    --ink:     #221f1a;
+    --muted:   #8a8477;
+    --line:    #e2ddd0;
+    --green:   #2f6b4f;
+    --green-d: #255740;
+    --ochre:   #b5762a;
+    --brick:   #a83a32;
+    --shadow:  0 1px 2px rgba(34,31,26,.04), 0 8px 30px rgba(34,31,26,.06);
+    --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .masthead { margin-bottom: 30px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ochre); font-weight: 600; margin-bottom: 6px;
+  }
+  .masthead-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  h1.title {
+    font-family: "Fraunces", serif; font-weight: 600;
+    font-size: clamp(28px, 6vw, 42px); line-height: 1.05; letter-spacing: -.01em;
+  }
+  .top-actions { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 500;
+    color: var(--muted); text-decoration: none; padding: 8px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: #fff; transition: all .15s;
+  }
+  .back-link:hover { color: var(--ink); border-color: var(--muted); }
+  .link-btn { background: none; border: none; cursor: pointer; color: var(--muted); font: inherit;
+    font-size: 13px; text-decoration: underline; padding: 4px; }
+  .link-btn:hover { color: var(--brick); }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: 26px; margin-bottom: 22px;
+    animation: rise .5s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+  .card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .card-head h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; letter-spacing: -.01em; }
+
+  /* ---------- Profile header (identity) ---------- */
+  .identity { display: flex; align-items: center; gap: 18px; }
+  .avatar-lg {
+    width: 84px; height: 84px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+    background: var(--green); color: #fbfaf6; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 34px;
+  }
+  .identity .who { min-width: 0; }
+  .identity .name { font-family: "Fraunces", serif; font-weight: 600; font-size: 24px; letter-spacing: -.01em; }
+  .identity .sub { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .role-tag {
+    display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--ochre);
+    background: #f7efe1; border: 1px solid #ecdcc2; border-radius: 6px; padding: 3px 9px;
+  }
+  .role-tag.staff { color: var(--green); background: #e9f3ee; border-color: #cfe6da; }
+
+  /* ---------- Read-only info grid ---------- */
+  .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; }
+  @media (max-width: 520px){ .kv-grid { grid-template-columns: 1fr; } }
+  .kv { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-weight: 500; text-align: right; word-break: break-word; }
+  .kv .v.muted { color: var(--muted); font-weight: 400; }
+
+  /* ---------- Forms ---------- */
+  label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 6px;
+          letter-spacing: .02em; font-weight: 500; }
+  input, textarea {
+    width: 100%; padding: 12px 14px; font: inherit; font-size: 14px;
+    color: var(--ink); background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus {
+    outline: none; border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(47,107,79,.12);
+  }
+  .field { margin-bottom: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px){ .grid-2 { grid-template-columns: 1fr; } }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  input[type=file] { padding: 9px 12px; font-size: 13px; }
+  .img-row { display: flex; align-items: center; gap: 16px; }
+  .img-row .preview {
+    width: 64px; height: 64px; border-radius: 12px; object-fit: cover;
+    background: var(--paper); border: 1px solid var(--line); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px;
+  }
+  .img-row .field { flex: 1; margin-bottom: 0; }
+
+  /* ---------- Buttons ---------- */
+  button { cursor: pointer; font: inherit; border: none; border-radius: 10px; transition: all .15s; }
+  .btn { background: var(--green); color: #fbfaf6; font-weight: 500; font-size: 14px; padding: 12px 20px; }
+  .btn:hover { background: var(--green-d); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn.auto { width: auto; }
+  .icon-btn { background: transparent; border: 1px solid var(--line); color: var(--muted);
+    padding: 10px 16px; font-size: 13px; font-weight: 500; }
+  .icon-btn:hover { color: var(--ink); border-color: var(--muted); }
+
+  /* ---------- Messages / states ---------- */
+  .msg { font-size: 13px; padding: 11px 15px; border-radius: 10px; margin-bottom: 16px; display: none; }
+  .msg.err { display: block; background: #fbeceb; color: #8f2e27; border: 1px solid #f1cfcc; }
+  .msg.ok  { display: block; background: #e9f3ee; color: #235741; border: 1px solid #cfe6da; }
+  .gate { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 10px; }
+  .gate a { color: var(--green); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="masthead">
+    <div class="eyebrow">Restoran · Boshqaruv paneli</div>
+    <div class="masthead-row">
+      <h1 class="title">Profil</h1>
+      <div class="top-actions">
+        <a class="back-link" href="index.html">← Menyuga qaytish</a>
+        <button class="link-btn" onclick="logout()">Chiqish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guard while loading -->
+  <div id="gate" class="card"><div class="gate">Yuklanmoqda…</div></div>
+
+  <!-- CONTENT -->
+  <div id="content" class="hidden">
+
+    <!-- Identity card -->
+    <div class="card">
+      <div class="identity">
+        <div id="avatarLg" class="avatar-lg">·</div>
+        <div class="who">
+          <div id="idName" class="name">—</div>
+          <div id="idEmail" class="sub">—</div>
+          <span id="idRole" class="role-tag">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read-only account info -->
+    <div class="card">
+      <div class="card-head"><h2>Hisob ma'lumotlari</h2></div>
+      <div class="kv-grid">
+        <div class="kv"><span class="k">ID</span><span id="vId" class="v">—</span></div>
+        <div class="kv"><span class="k">Foydalanuvchi nomi</span><span id="vUsername" class="v">—</span></div>
+        <div class="kv"><span class="k">Roli</span><span id="vRole" class="v">—</span></div>
+        <div class="kv"><span class="k">Holati</span><span id="vActive" class="v">—</span></div>
+        <div class="kv"><span class="k">Ro'yxatdan o'tgan</span><span id="vJoined" class="v">—</span></div>
+        <div class="kv"><span class="k">Oxirgi kirish</span><span id="vLogin" class="v">—</span></div>
+      </div>
+    </div>
+
+    <!-- Edit form -->
+    <div class="card">
+      <div class="card-head"><h2>Ma'lumotlarni tahrirlash</h2></div>
+      <div id="formMsg" class="msg"></div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Ism</label>
+          <input id="fFirstName" type="text" placeholder="Ism">
+        </div>
+        <div class="field">
+          <label>Familiya</label>
+          <input id="fLastName" type="text" placeholder="Familiya">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input id="fEmail" type="email" placeholder="email@example.com">
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Telegram</label>
+          <input id="fTelegram" type="url" placeholder="https://t.me/username">
+        </div>
+        <div class="field">
+          <label>Instagram</label>
+          <input id="fInstagram" type="url" placeholder="https://instagram.com/username">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Rasm (avatar)</label>
+        <div class="img-row">
+          <img id="avatarPreview" class="preview" alt="">
+          <div class="field">
+            <input id="fImage" type="file" accept="image/*" onchange="previewAvatar()">
+            <div class="hint">JPG yoki PNG. Tanlansa, joriy rasm almashtiriladi.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px">
+        <button id="saveBtn" class="btn auto" onclick="saveProfile()">O'zgarishlarni saqlash</button>
+        <button class="icon-btn" onclick="fillForm()">Bekor qilish</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000/api";
+const MEDIA_ORIGIN = "http://127.0.0.1:8000";   // rasm nisbiy URL bo'lsa old qo'shiladi
+
+let currentUser = null;
+
+/* ---------- Auth guard ---------- */
+if (!localStorage.getItem("access")) window.location.href = "auth.html";
+function getAccess(){ return localStorage.getItem("access"); }
+function getRefresh(){ return localStorage.getItem("refresh"); }
+function logout(){
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  window.location.href = "auth.html";
+}
+
+/* ---------- Fetch (401 -> refresh -> retry) ---------- */
+async function apiFetch(url, opts={}, retry=true){
+  opts.headers = opts.headers || {};
+  opts.headers["Authorization"] = "Bearer " + getAccess();
+  const res = await fetch(url, opts);
+  if (res.status === 401 && retry && getRefresh()){
+    if (await tryRefresh()) return apiFetch(url, opts, false);
+    logout(); throw new Error("Session muddati tugadi");
+  }
+  return res;
+}
+async function tryRefresh(){
+  try{
+    const r = await fetch(API+"/auth/refresh/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ refresh: getRefresh() })
+    });
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d.access){ localStorage.setItem("access", d.access); return true; }
+    return false;
+  }catch(e){ return false; }
+}
+
+/* ---------- Init ---------- */
+async function init(){
+  try{
+    const r = await apiFetch(API + "/me/");
+    if (!r.ok) throw new Error("me failed");
+    currentUser = await r.json();
+  }catch(e){
+    document.getElementById("gate").innerHTML =
+      '<div class="gate">Serverga ulanib bo\'lmadi. <a href="index.html">Menyuga qaytish</a></div>';
+    return;
+  }
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("content").classList.remove("hidden");
+  render();
+}
+
+/* ---------- Render identity + read-only info ---------- */
+function imgUrl(u){
+  if(!u) return "";
+  return /^https?:\/\//.test(u) ? u : MEDIA_ORIGIN + (u.startsWith("/") ? u : "/"+u);
+}
+function fmtDate(s){
+  if(!s) return "—";
+  const d = new Date(s);
+  if(isNaN(d)) return String(s);
+  return d.toLocaleString("uz-UZ", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+
+function render(){
+  const u = currentUser || {};
+  const isAdmin = !!u.is_staff;
+  const name = u.username || "Foydalanuvchi";
+  const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ");
+
+  // avatar: rasm bo'lsa img, bo'lmasa harf
+  const av = document.getElementById("avatarLg");
+  const img = imgUrl(u.image);
+  if (img){
+    av.outerHTML = `<img id="avatarLg" class="avatar-lg" src="${esc(img)}" alt="">`;
+  } else {
+    av.textContent = (name.trim()[0] || "·").toUpperCase();
+  }
+
+  document.getElementById("idName").textContent = fullName || name;
+  document.getElementById("idEmail").textContent = u.email || "Email kiritilmagan";
+  const role = document.getElementById("idRole");
+  role.textContent = isAdmin ? "Administrator" : "Foydalanuvchi";
+  role.className = "role-tag" + (isAdmin ? " staff" : "");
+
+  setV("vId", u.id);
+  setV("vUsername", u.username);
+  setV("vRole", isAdmin ? "Administrator" : "Foydalanuvchi");
+  document.getElementById("vActive").textContent = u.is_active === false ? "Bloklangan" : "Faol";
+  document.getElementById("vJoined").textContent = fmtDate(u.date_joined);
+  document.getElementById("vLogin").textContent = u.last_login ? fmtDate(u.last_login) : "Hali kirmagan";
+
+  fillForm();
+}
+function setV(id, val){
+  const el = document.getElementById(id);
+  if (val === null || val === undefined || val === ""){ el.textContent = "—"; el.classList.add("muted"); }
+  else { el.textContent = val; el.classList.remove("muted"); }
+}
+
+/* ---------- Fill / reset form from currentUser ---------- */
+function fillForm(){
+  const u = currentUser || {};
+  fFirstName.value = u.first_name || "";
+  fLastName.value  = u.last_name || "";
+  fEmail.value     = u.email || "";
+  fTelegram.value  = u.telegram || "";
+  fInstagram.value = u.instagram || "";
+  fImage.value = "";
+  const p = document.getElementById("avatarPreview");
+  const img = imgUrl(u.image);
+  if (img){ p.src = img; p.style.visibility = "visible"; }
+  else { p.removeAttribute("src"); }
+  hideMsg("formMsg");
+}
+function previewAvatar(){
+  const f = fImage.files && fImage.files[0];
+  if (f){ const p = document.getElementById("avatarPreview"); p.src = URL.createObjectURL(f); p.style.visibility = "visible"; }
+}
+
+/* ---------- Save (PATCH /api/me/) ---------- */
+async function saveProfile(){
+  const email = fEmail.value.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return showMsg("formMsg", "Email formati noto'g'ri.", "err");
+
+  // rasm yuklash uchun multipart/form-data
+  const fd = new FormData();
+  fd.append("first_name", fFirstName.value.trim());
+  fd.append("last_name",  fLastName.value.trim());
+  fd.append("email",      email);
+  fd.append("telegram",   fTelegram.value.trim());
+  fd.append("instagram",  fInstagram.value.trim());
+  if (fImage.files && fImage.files[0]) fd.append("image", fImage.files[0]);
+
+  const btn = document.getElementById("saveBtn");
+  btn.disabled = true; btn.textContent = "Saqlanmoqda…";
+  try{
+    // Content-Type qo'lda berilmaydi — brauzer multipart chegarasini o'zi qo'yadi
+    const r = await apiFetch(API + "/me/update/", { method: "PATCH", body: fd });
+    if(!r.ok){
+      const d = await r.json().catch(()=>({}));
+      return showMsg("formMsg", errText(d, "Saqlashda xatolik."), "err");
+    }
+    // Update serializer faqat tahrirlangan maydonlarni qaytaradi — mavjud ma'lumotga birlashtiramiz
+    const updated = await r.json().catch(()=>({}));
+    currentUser = { ...currentUser, ...updated };
+    render();
+    showMsg("formMsg", "Ma'lumotlar saqlandi.", "ok");
+  }catch(e){
+    showMsg("formMsg", "So'rovda xatolik.", "err");
+  }finally{
+    btn.disabled = false; btn.textContent = "O'zgarishlarni saqlash";
+  }
+}
+
+/* ---------- utils ---------- */
+function showMsg(id, t, type){ const el=document.getElementById(id); if(!el)return; el.textContent=t; el.className="msg "+(type==="ok"?"ok":"err"); }
+function hideMsg(id){ const el=document.getElementById(id); if(el) el.className="msg"; }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function errText(d, fallback){ try{ return Object.entries(d).map(([k,v])=>k+": "+(Array.isArray(v)?v.join(", "):v)).join(" | ") || fallback; }catch(e){ return fallback; } }
+
+init();
+</script>
+</body>
+</html>

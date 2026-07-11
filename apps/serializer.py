@@ -1,7 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import Category, MenuItem, Order, OrderItem
+from .models import Category, MenuItem, Order, OrderItem, User
 
 # ==============================================================================
 class RegisterSerializer(ModelSerializer):
@@ -69,4 +68,15 @@ class OrderListSerializer(ModelSerializer):
 class GetMeSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        # fields = '__all__'
+        # fields = []
+        exclude = ['password', 'groups', 'user_permissions']
+
+
+class UserUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'first_name', 'last_name', 'email',
+            'telegram', 'instagram', 'image'
+        ]

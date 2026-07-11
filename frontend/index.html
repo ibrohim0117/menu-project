@@ -149,7 +149,40 @@
   .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
   .dish-desc { font-size: 13.5px; color: var(--muted); margin-top: 3px; max-width: 60ch; }
 
+  /* ---------- Cart button ---------- */
+  .cart-btn {
+    flex-shrink: 0; align-self: center;
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--line); color: var(--green);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .cart-btn svg { width: 19px; height: 19px; }
+  .cart-btn:hover:not(:disabled) { background: var(--green); color: #fbfaf6; border-color: var(--green); }
+  .cart-btn:active:not(:disabled) { transform: scale(.92); }
+  .cart-btn:disabled { opacity: .4; cursor: default; }
+  .cart-btn.added { background: var(--green); color: #fbfaf6; border-color: var(--green); }
+  body.compact .cart-btn { width: 34px; height: 34px; }
+  body.compact .cart-btn svg { width: 17px; height: 17px; }
+
   .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 26px 10px; }
+
+  /* ---------- Pagination ---------- */
+  .pager {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line);
+  }
+  .pager:empty { display: none; }
+  .pager .pages { font-size: 13px; color: var(--muted); }
+  .pager .nav-group { display: flex; gap: 8px; }
+  .page-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 15px; border-radius: 10px; cursor: pointer;
+    background: #fff; border: 1px solid var(--line); color: var(--ink);
+    font: inherit; font-size: 13.5px; font-weight: 500; transition: all .15s;
+  }
+  .page-btn:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+  .page-btn:disabled { opacity: .45; cursor: default; }
 
   /* ---------- Modal ---------- */
   .overlay {
@@ -237,7 +270,7 @@
           </div>
         </div>
         <nav class="nav">
-          <button class="nav-btn" onclick="openProfile()">
+          <button class="nav-btn" onclick="location.href='profile.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
             Profil
           </button>
@@ -261,6 +294,7 @@
           <span id="itemCount" class="count"></span>
         </div>
         <div id="menuList"></div>
+        <div id="pager" class="pager"></div>
       </div>
     </main>
 
@@ -278,23 +312,15 @@
   </div>
 </div>
 
-<!-- Profile modal -->
-<div id="profileModal" class="overlay" onclick="if(event.target===this)closeModal('profileModal')">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>Profil</h3>
-      <button class="modal-close" onclick="closeModal('profileModal')">×</button>
-    </div>
-    <div id="profileBody"></div>
-  </div>
-</div>
-
 <script>
 const API = "http://127.0.0.1:8000/api";
 const MEDIA_ORIGIN = "http://127.0.0.1:8000";   // rasm nisbiy URL bo'lsa old qo'shiladi
+const PAGE_SIZE = 5;          // backend REST_FRAMEWORK PAGE_SIZE bilan bir xil
 let currentFilter = null;     // null = hammasi
+let currentPage = 1;
+let pageData = { results: [], count: 0, next: null, previous: null };
 let categories = [];
-let items = [];
+let catCounts = {};           // { all: N, <catId>: N }
 let currentUser = null;
 let isAdmin = false;
 
@@ -378,7 +404,16 @@ async function checkUserRole(){
 function renderProfileHeader(){
   const u = currentUser || {};
   const name = u.username || u.name || "Foydalanuvchi";
-  avatar.textContent = (name.trim()[0] || "·").toUpperCase();
+  const img = imgUrl(u);   // profil rasmi bo'lsa
+  if (img){
+    avatar.textContent = "";
+    avatar.style.backgroundImage = `url("${img}")`;
+    avatar.style.backgroundSize = "cover";
+    avatar.style.backgroundPosition = "center";
+  } else {
+    avatar.style.backgroundImage = "";
+    avatar.textContent = (name.trim()[0] || "·").toUpperCase();
+  }
   profName.textContent = name;
   profRole.textContent = isAdmin ? "Administrator" : "Foydalanuvchi";
   profRole.className = "role-tag" + (isAdmin ? " staff" : "");
@@ -387,6 +422,7 @@ function renderProfileHeader(){
 async function init(){
   await checkUserRole();
   await loadCategories();
+  renderCategories();
   await loadItems();
   applyCompact();
 }
@@ -398,20 +434,35 @@ async function loadCategories(){
   try{
     categories = await fetchAll(API+"/categories/");
   }catch(e){ categories = []; }
+  await loadCategoryCounts();
 }
 
-function countFor(catId){
-  return items.filter(i => String(itemCatId(i)) === String(catId)).length;
+/* Kategoriya sonlarini serverdan olamiz (paginatsiya javobidagi `count` maydoni) */
+async function fetchCount(url){
+  try{
+    const r = await apiFetch(url);
+    if(!r.ok) return 0;
+    const d = await r.json();
+    return Array.isArray(d) ? d.length : (d.count ?? 0);
+  }catch(e){ return 0; }
+}
+async function loadCategoryCounts(){
+  catCounts = {};
+  const jobs = [ fetchCount(API+"/menu-items/").then(n => catCounts.all = n) ];
+  categories.forEach(c => jobs.push(
+    fetchCount(API+"/menu-items/?category="+c.id).then(n => catCounts[c.id] = n)
+  ));
+  await Promise.all(jobs);
 }
 
 function renderCategories(){
   catCount.textContent = categories.length ? categories.length + " ta" : "";
-  const total = items.length;
+  const total = catCounts.all ?? 0;
   let html = `<button class="cat-btn ${currentFilter===null?'active':''}" data-f="all">
       <span>Hammasi</span><span class="n">${total}</span></button>`;
 
   categories.forEach(c=>{
-    const n = countFor(c.id);
+    const n = catCounts[c.id] ?? 0;
     if (settings.hideEmpty && n === 0) return;
     const on = String(currentFilter) === String(c.id);
     html += `<button class="cat-btn ${on?'active':''}" data-f="${c.id}">
@@ -425,8 +476,9 @@ function renderCategories(){
   catList.querySelectorAll("[data-f]").forEach(b=>{
     b.onclick = ()=>{
       currentFilter = b.dataset.f === "all" ? null : b.dataset.f;
+      currentPage = 1;               // filtr o'zgarganda 1-sahifadan boshlanadi
       renderCategories();
-      renderItems();
+      loadItems();
     };
   });
 }
@@ -456,23 +508,25 @@ function imgUrl(i){
 
 async function loadItems(){
   menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
+  pager.innerHTML = "";
+  let url = API + "/menu-items/?page=" + currentPage;
+  if (currentFilter !== null) url += "&category=" + currentFilter;
   try{
-    items = await fetchAll(API+"/menu-items/");
+    const r = await apiFetch(url);
+    if(!r.ok) throw new Error("status " + r.status);
+    pageData = await r.json();
   }catch(e){
-    items = [];
+    pageData = { results: [], count: 0, next: null, previous: null };
     menuList.innerHTML = '<div class="empty">Menyuni yuklab bo\'lmadi.</div>';
     return;
   }
-  renderCategories();
   renderItems();
+  renderPager();
 }
 
 function renderItems(){
-  const visible = currentFilter === null
-    ? items
-    : items.filter(i => String(itemCatId(i)) === String(currentFilter));
-
-  itemCount.textContent = visible.length ? visible.length + " ta taom" : "";
+  const visible = pageData.results || [];
+  itemCount.textContent = pageData.count ? pageData.count + " ta taom" : "";
 
   if(!visible.length){
     menuList.innerHTML = currentFilter
@@ -501,12 +555,42 @@ function renderItems(){
   menuList.innerHTML = html;
 }
 
+/* ---------- Pagination controls ---------- */
+function renderPager(){
+  const total = pageData.count || 0;
+  if (total === 0){ pager.innerHTML = ""; return; }
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  pager.innerHTML = `
+    <span class="pages">${currentPage}-sahifa / ${totalPages}</span>
+    <div class="nav-group">
+      <button class="page-btn" id="prevBtn" ${pageData.previous ? "" : "disabled"}>← Oldingi</button>
+      <button class="page-btn" id="nextBtn" ${pageData.next ? "" : "disabled"}>Keyingi →</button>
+    </div>`;
+  const prev = document.getElementById("prevBtn");
+  const next = document.getElementById("nextBtn");
+  if (prev) prev.onclick = ()=> goToPage(currentPage - 1);
+  if (next) next.onclick = ()=> goToPage(currentPage + 1);
+}
+
+async function goToPage(p){
+  if (p < 1) return;
+  currentPage = p;
+  await loadItems();
+  document.querySelector("main").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+const CART_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 3h2l2.2 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L23 7H6"/></svg>`;
+const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+
 function dishRow(i){
   const price = fmtPrice(i.price);
   const desc = i.description ? `<div class="dish-desc">${esc(i.description)}</div>` : "";
   const na = i.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
   const img = imgUrl(i);
   const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : "";
+  const avail = i.is_available !== false;
+  const cartBtn = `<button class="cart-btn" ${avail ? "" : "disabled"} title="Savatga qo'shish"
+      aria-label="Savatga qo'shish" onclick="addToCart(${i.id}, this)">${CART_SVG}</button>`;
   return `<div class="dish">
     ${thumb}
     <div class="dish-main">
@@ -517,35 +601,20 @@ function dishRow(i){
       </div>
       ${desc}
     </div>
+    ${cartBtn}
   </div>`;
 }
 
-/* ---------- Profile modal ---------- */
-function openProfile(){
-  const u = currentUser || {};
-  const rows = [
-    ["Foydalanuvchi", u.username || u.name || "—"],
-    ["Roli", isAdmin ? "Administrator" : "Foydalanuvchi"],
-  ];
-  if (u.email) rows.push(["Email", u.email]);
-  if (u.first_name || u.last_name) rows.push(["Ism", [u.first_name, u.last_name].filter(Boolean).join(" ")]);
-  if (u.id !== undefined) rows.push(["ID", u.id]);
-
-  profileBody.innerHTML = rows.map(([k,v])=>
-    `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`
-  ).join("");
-  openModal("profileModal");
+/* Savatga qo'shish — hozircha faqat vizual (API keyin ulanadi) */
+function addToCart(id, btn){
+  if (btn.classList.contains("added")) return;
+  btn.classList.add("added");
+  btn.innerHTML = CHECK_SVG;
+  setTimeout(()=>{ btn.classList.remove("added"); btn.innerHTML = CART_SVG; }, 1200);
 }
 
 /* Sozlamalar settings.html'da o'zgartiriladi; bu yerda faqat qo'llanadi */
 function applyCompact(){ document.body.classList.toggle("compact", settings.compact); }
-
-/* ---------- Modal helpers ---------- */
-function openModal(id){ document.getElementById(id).classList.add("open"); }
-function closeModal(id){ document.getElementById(id).classList.remove("open"); }
-document.addEventListener("keydown", e=>{
-  if(e.key==="Escape"){ closeModal("profileModal"); }
-});
 
 /* ---------- utils ---------- */
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }

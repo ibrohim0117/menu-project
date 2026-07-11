@@ -6,7 +6,7 @@ from .views import (
     MenuItemListCreateApiView, MenuItemRetrieveUpdateDestroyApiView,
     OrderListCreateApiView, OrderRetrieveUpdateDestroyApiView,
     OrderItemRetrieveUpdateDestroyApiView, OrderItemListCreateApiView, 
-    GetMe
+    GetMe, UserUpdate
 )
 
 urlpatterns = [
@@ -15,6 +15,7 @@ urlpatterns = [
     path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', GetMe.as_view(), name='me'),
+    path('me/update/', UserUpdate.as_view(), name='me-update'),
 
     #Kategoriyalar
     path('categories/', CategoryListCreateApiView.as_view(), name='category_list_create'),

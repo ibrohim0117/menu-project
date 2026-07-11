@@ -2,7 +2,17 @@ import random
 from django.db import models
 from django.utils.text import slugify
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    image = models.ImageField(upload_to='avatar/', blank=True, null=True)
+    telegram = models.URLField(blank=True, null=True)
+    instagram = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.username
+
 
 
 class Category(models.Model):

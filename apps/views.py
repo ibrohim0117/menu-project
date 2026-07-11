@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView,
-    CreateAPIView, RetrieveAPIView
+    CreateAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView
 )
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -11,15 +11,13 @@ from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from drf_spectacular.utils import extend_schema
-from django.contrib.auth.models import User
-
-from .models import Category, MenuItem, Order, OrderItem
+from .models import Category, MenuItem, Order, OrderItem, User
 from .serializer import (
     CategoryListSerializer, 
     MenuItemListSerializer, 
     OrderItemListSerializer, 
     OrderListSerializer,
-    RegisterSerializer, GetMeSerializer
+    RegisterSerializer, GetMeSerializer, UserUpdateSerializer
 )
 
 
@@ -66,8 +64,8 @@ class CategoryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
 class MenuItemListCreateApiView(ListCreateAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemListSerializer
-    pagination_class = StandardResultsSetPagination
-    
+    # Global PAGE_SIZE=5 (settings.py > REST_FRAMEWORK) ishlatiladi
+
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     
     filterset_fields = {
@@ -162,3 +160,15 @@ class GetMe(RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+
+class UserUpdate(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self):
+        return self.request.user
+
+# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzNzQzODA3LCJpYXQiOjE3ODM3NDM1MDcsImp0aSI6IjE1YTg2NTM2ODViYTQxYzE4NmM2NzI5ODZlNDhlMjlkIiwidXNlcl9pZCI6IjIifQ.lp_yEftkqzXtJuGf7uRqoCOlZyxz-JPlLxXinObK-kU
