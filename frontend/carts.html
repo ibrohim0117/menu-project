@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savatcha · Menyu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #f3f1ea;
+    --card:    #fbfaf6;
+    --ink:     #221f1a;
+    --muted:   #8a8477;
+    --line:    #e2ddd0;
+    --green:   #2f6b4f;
+    --green-d: #255740;
+    --ochre:   #b5762a;
+    --brick:   #a83a32;
+    --shadow:  0 1px 2px rgba(34,31,26,.04), 0 8px 30px rgba(34,31,26,.06);
+    --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .masthead { margin-bottom: 30px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ochre); font-weight: 600; margin-bottom: 6px;
+  }
+  .masthead-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  h1.title {
+    font-family: "Fraunces", serif; font-weight: 600;
+    font-size: clamp(28px, 6vw, 42px); line-height: 1.05; letter-spacing: -.01em;
+  }
+  .top-actions { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 500;
+    color: var(--muted); text-decoration: none; padding: 8px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: #fff; transition: all .15s;
+  }
+  .back-link:hover { color: var(--ink); border-color: var(--muted); }
+  .link-btn { background: none; border: none; cursor: pointer; color: var(--muted); font: inherit;
+    font-size: 13px; text-decoration: underline; padding: 4px; }
+  .link-btn:hover { color: var(--brick); }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: 26px; margin-bottom: 22px;
+    animation: rise .5s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+  .card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .card-head h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; letter-spacing: -.01em; }
+  .card-head .count { font-size: 13px; color: var(--muted); }
+
+  /* ---------- Cart items ---------- */
+  .dish { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
+  .dish:last-child { border-bottom: none; }
+  .dish-thumb { width: 58px; height: 58px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+    background: var(--paper); border: 1px solid var(--line); }
+  .dish-main { flex: 1; min-width: 0; }
+  .dish-name { font-family: "Fraunces", serif; font-size: 17px; font-weight: 500; }
+  .dish-cat { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+  .na-tag { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--brick); background: #fbeceb; border: 1px solid #f1cfcc;
+    border-radius: 6px; padding: 2px 7px; margin-left: 9px; vertical-align: middle;
+    font-weight: 600; white-space: nowrap; }
+
+  /* ---------- Remove button ---------- */
+  .remove-btn {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 9px;
+    background: #fff; border: 1px solid var(--line); color: var(--muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .remove-btn svg { width: 17px; height: 17px; }
+  .remove-btn:hover:not(:disabled) { background: var(--brick); color: #fff; border-color: var(--brick); }
+  .remove-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ---------- Summary ---------- */
+  .summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .summary .s-label { font-size: 14px; color: var(--muted); }
+  .summary .s-total { font-family: "Fraunces", serif; font-size: 26px; font-weight: 600; color: var(--green); }
+  .checkout-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; }
+
+  /* ---------- Buttons ---------- */
+  button { cursor: pointer; font: inherit; border: none; border-radius: 10px; transition: all .15s; }
+  .btn { background: var(--green); color: #fbfaf6; font-weight: 500; font-size: 14px; padding: 13px 22px; width: 100%; margin-top: 16px; }
+  .btn:hover { background: var(--green-d); }
+  .btn:disabled { opacity: .5; cursor: default; }
+
+  /* ---------- States ---------- */
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 10px; }
+  .empty a { color: var(--green); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="masthead">
+    <div class="eyebrow">Restoran · Menyu</div>
+    <div class="masthead-row">
+      <h1 class="title">Savatcha</h1>
+      <div class="top-actions">
+        <a class="back-link" href="index.html">← Menyuga qaytish</a>
+        <button class="link-btn" onclick="logout()">Chiqish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading / gate -->
+  <div id="gate" class="card"><div class="empty">Yuklanmoqda…</div></div>
+
+  <!-- CONTENT -->
+  <div id="content" class="hidden">
+    <div class="card">
+      <div class="card-head">
+        <h2>Tanlangan taomlar</h2>
+        <span id="itemCount" class="count"></span>
+      </div>
+      <div id="cartList"></div>
+    </div>
+
+    <div id="summaryCard" class="card hidden">
+      <div class="summary">
+        <span class="s-label">Umumiy summa</span>
+        <span id="total" class="s-total">0 so'm</span>
+      </div>
+      <button class="btn" onclick="checkout()">Buyurtma berish</button>
+      <div class="checkout-note">Buyurtma berish API'si tez orada ulanadi.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000/api";
+const MEDIA_ORIGIN = "http://127.0.0.1:8000";   // rasm nisbiy URL bo'lsa old qo'shiladi
+
+/* ---------- Auth guard ---------- */
+if (!localStorage.getItem("access")) window.location.href = "auth.html";
+function getAccess(){ return localStorage.getItem("access"); }
+function getRefresh(){ return localStorage.getItem("refresh"); }
+function logout(){
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  window.location.href = "auth.html";
+}
+
+/* ---------- Fetch (401 -> refresh -> retry) ---------- */
+async function apiFetch(url, opts={}, retry=true){
+  opts.headers = opts.headers || {};
+  opts.headers["Authorization"] = "Bearer " + getAccess();
+  const res = await fetch(url, opts);
+  if (res.status === 401 && retry && getRefresh()){
+    if (await tryRefresh()) return apiFetch(url, opts, false);
+    logout(); throw new Error("Session muddati tugadi");
+  }
+  return res;
+}
+async function tryRefresh(){
+  try{
+    const r = await fetch(API+"/auth/refresh/", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ refresh: getRefresh() })
+    });
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d.access){ localStorage.setItem("access", d.access); return true; }
+    return false;
+  }catch(e){ return false; }
+}
+/* Barcha sahifalarni yuklaydi (paginatsiyani bosib o'tadi) */
+async function fetchAll(url){
+  let out = [], next = url;
+  while(next){
+    const r = await apiFetch(next);
+    if(!r.ok) throw new Error("fetch failed: " + r.status);
+    const d = await r.json();
+    if(Array.isArray(d)){ out = out.concat(d); break; }
+    out = out.concat(d.results || []);
+    next = d.next;
+  }
+  return out;
+}
+
+/* ---------- helpers ---------- */
+function fmtPrice(p){
+  if (p===null || p===undefined || p==="") return "0 so'm";
+  const n = Number(p);
+  if (Number.isNaN(n)) return String(p);
+  return n.toLocaleString("uz-UZ") + " so'm";
+}
+function imgUrl(u){
+  if(!u) return "";
+  return /^https?:\/\//.test(u) ? u : MEDIA_ORIGIN + (u.startsWith("/") ? u : "/"+u);
+}
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+/* ---------- Init ---------- */
+let cart = [];
+async function init(){
+  try{
+    cart = await fetchAll(API + "/carts/");
+  }catch(e){
+    document.getElementById("gate").innerHTML =
+      '<div class="empty">Savatchani yuklab bo\'lmadi. <a href="index.html">Menyuga qaytish</a></div>';
+    return;
+  }
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("content").classList.remove("hidden");
+  render();
+}
+
+function render(){
+  const list = document.getElementById("cartList");
+  document.getElementById("itemCount").textContent = cart.length ? cart.length + " ta" : "";
+
+  if(!cart.length){
+    list.innerHTML = '<div class="empty">Savatcha bo\'sh.<br><a href="index.html">Menyudan taom qo\'shing</a></div>';
+    document.getElementById("summaryCard").classList.add("hidden");
+    return;
+  }
+
+  list.innerHTML = cart.map(c => row(c)).join("");
+
+  const total = cart.reduce((sum, c) => sum + Number(c.menu?.price || 0), 0);
+  document.getElementById("total").textContent = fmtPrice(total);
+  document.getElementById("summaryCard").classList.remove("hidden");
+}
+
+const TRASH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>`;
+
+function row(c){
+  const m = c.menu || {};
+  const img = imgUrl(m.image);
+  const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : `<div class="dish-thumb"></div>`;
+  const na = m.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
+  return `<div class="dish" data-cart="${c.id}">
+    ${thumb}
+    <div class="dish-main">
+      <div class="dish-name">${esc(m.name || "(nomsiz)")}${na}</div>
+      ${m.description ? `<div class="dish-cat">${esc(m.description)}</div>` : ""}
+    </div>
+    <div class="dish-price">${esc(fmtPrice(m.price))}</div>
+    <button class="remove-btn" title="O'chirish" aria-label="O'chirish" onclick="removeFromCart(${c.id}, this)">${TRASH_SVG}</button>
+  </div>`;
+}
+
+/* Savatchadan o'chirish — DELETE /api/cart-remove/<id>/ */
+async function removeFromCart(cartId, btn){
+  if (btn.disabled) return;
+  btn.disabled = true;
+  const dish = btn.closest(".dish");
+  if (dish) dish.style.opacity = ".5";
+  try{
+    const r = await apiFetch(API + "/cart-remove/" + cartId + "/", { method: "DELETE" });
+    if(!(r.ok || r.status === 204)) throw new Error("status " + r.status);
+    cart = cart.filter(c => String(c.id) !== String(cartId));
+    render();
+  }catch(e){
+    if (dish) dish.style.opacity = "";
+    btn.disabled = false;
+    alert("O'chirishda xatolik yuz berdi.");
+  }
+}
+
+function checkout(){
+  alert("Buyurtma berish API'si hali ulanmagan.");
+}
+
+init();
+</script>
+</body>
+</html>

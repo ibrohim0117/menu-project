@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView,
-    CreateAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView
+    CreateAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView, ListAPIView
+    
 )
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -11,13 +12,15 @@ from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from drf_spectacular.utils import extend_schema
-from .models import Category, MenuItem, Order, OrderItem, User
+from .models import Category, MenuItem, Order, OrderItem, User, Cart
 from .serializer import (
     CategoryListSerializer, 
     MenuItemListSerializer, 
     OrderItemListSerializer, 
     OrderListSerializer,
-    RegisterSerializer, GetMeSerializer, UserUpdateSerializer
+    RegisterSerializer, GetMeSerializer,
+    UserUpdateSerializer, CartListSerializer,
+    CartCreateSerializer
 )
 
 
@@ -171,4 +174,36 @@ class UserUpdate(UpdateAPIView):
     def get_object(self):
         return self.request.user
 
-# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzNzQzODA3LCJpYXQiOjE3ODM3NDM1MDcsImp0aSI6IjE1YTg2NTM2ODViYTQxYzE4NmM2NzI5ODZlNDhlMjlkIiwidXNlcl9pZCI6IjIifQ.lp_yEftkqzXtJuGf7uRqoCOlZyxz-JPlLxXinObK-kU
+@extend_schema(tags=['cart'])
+class CartListAPIView(ListAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user).all()
+
+
+
+@extend_schema(tags=['cart'])
+class CartCreateAPIView(CreateAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartCreateSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+
+@extend_schema(tags=['cart'])
+class CartRemoveApiView(DestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartCreateSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+
+
+    

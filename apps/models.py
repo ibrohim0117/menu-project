@@ -88,3 +88,11 @@ class OrderItem(models.Model):
             self.menu_price = self.menu_item.price
         return super().save(*args, **kwargs)
 
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_carts')
+    menu = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name='menu_cart')
+
+    def __str__(self):
+        return f"{self.user.username} --- {self.menu.name}"

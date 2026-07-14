@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, MenuItem, Order, OrderItem
+from .models import Category, MenuItem, Order, OrderItem, Cart
 
 # 1. Kategoriya admini
 @admin.register(Category)
@@ -27,3 +27,6 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ['status', 'created_at']
     search_fields = ['user__username', 'id']  # Agar user modeliga bog'langan bo'lsa
     inlines = [OrderItemInline]  # Buyurtma ichida unga tegishli mahsulotlarni ko'rsatadi
+
+
+admin.site.register(Cart)

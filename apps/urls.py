@@ -6,7 +6,8 @@ from .views import (
     MenuItemListCreateApiView, MenuItemRetrieveUpdateDestroyApiView,
     OrderListCreateApiView, OrderRetrieveUpdateDestroyApiView,
     OrderItemRetrieveUpdateDestroyApiView, OrderItemListCreateApiView, 
-    GetMe, UserUpdate
+    GetMe, UserUpdate, CartListAPIView, CartCreateAPIView,
+    CartRemoveApiView
 )
 
 urlpatterns = [
@@ -32,4 +33,9 @@ urlpatterns = [
     #Buyurtma elementlari
     path('order-itemss/', OrderItemListCreateApiView.as_view(), name='order_item_post'),
     path('order-items/<int:pk>/', OrderItemRetrieveUpdateDestroyApiView.as_view(), name='order_item_detail'),
+
+    #Savatcha
+    path('carts/', CartListAPIView.as_view(), name='carts'),
+    path('cart-create/', CartCreateAPIView.as_view(), name='cart-create'),
+    path('cart-remove/<int:pk>/', CartRemoveApiView.as_view(), name='cart-remove'),
 ]

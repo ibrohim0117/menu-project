@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from .models import Category, MenuItem, Order, OrderItem, User
+from .models import Category, MenuItem, Order, OrderItem, User, Cart
 
 # ==============================================================================
 class RegisterSerializer(ModelSerializer):
@@ -80,3 +80,16 @@ class UserUpdateSerializer(ModelSerializer):
             'first_name', 'last_name', 'email',
             'telegram', 'instagram', 'image'
         ]
+
+
+class CartListSerializer(ModelSerializer):
+    menu = MenuItemListSerializer()
+    class Meta:
+        model = Cart
+        fields = ['id', 'user', 'menu']
+
+
+class CartCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['user', 'menu']
