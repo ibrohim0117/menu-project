@@ -1,6 +1,7 @@
 import random
 from django.db import models
 from django.utils.text import slugify
+import random
 
 # from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
@@ -62,11 +63,21 @@ class Order(models.Model):
         choices=STATUS_CHOICES, 
         default='pending'
     )
-    
+
+    order_number = models.CharField(max_length=10, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.customer.username}"
+
+
+    def save(self, *args, **kwargs):
+        random_number = f"#{random.randint(1, 99999)}"
+        while Order.objects.filter(order_number=random_number).exists():
+            random_number = f"#{random.randint(1, 99999)}"
+        self.order_number=random_number
+        return super().save(*args, **kwargs)
+    
 
     @property
     def total_price(self):

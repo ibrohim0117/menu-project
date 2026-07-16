@@ -45,8 +45,8 @@ class OrderListSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'status', 'created_at', 'total_price', 'items']
-        read_only_fields = ['customer', 'status', 'total_price']
+        fields = ['id', 'customer', 'status', 'created_at', 'total_price', 'items', 'order_number']
+        read_only_fields = ['customer', 'status', 'total_price', 'order_number']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
@@ -63,6 +63,13 @@ class OrderListSerializer(ModelSerializer):
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)
         return order
+
+
+class OrderUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status', ]
+
 
 
 class GetMeSerializer(ModelSerializer):

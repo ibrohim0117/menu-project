@@ -20,7 +20,7 @@ from .serializer import (
     OrderListSerializer,
     RegisterSerializer, GetMeSerializer,
     UserUpdateSerializer, CartListSerializer,
-    CartCreateSerializer
+    CartCreateSerializer, OrderUpdateSerializer
 )
 
 
@@ -113,10 +113,18 @@ class OrderListCreateApiView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
 
+
 @extend_schema(tags=['orders'])
 class OrderRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
+    # Standart holat uchun (ixtiyoriy, lekin tursa zarar qilmaydi)
     serializer_class = OrderListSerializer
     permission_classes = [IsAuthenticated]
+
+    # TO'G'RI YONDASHUV: get_serializer o'rniga get_serializer_class dan foydalanamiz
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return OrderListSerializer
+        return OrderUpdateSerializer  # PUT, PATCH va hokazolar uchun
 
     def get_queryset(self):
         if self.request.user.is_staff:

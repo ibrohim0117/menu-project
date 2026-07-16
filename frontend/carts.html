@@ -150,8 +150,8 @@
         <span class="s-label">Umumiy summa</span>
         <span id="total" class="s-total">0 so'm</span>
       </div>
-      <button class="btn" onclick="checkout()">Buyurtma berish</button>
-      <div class="checkout-note">Buyurtma berish API'si tez orada ulanadi.</div>
+      <button id="checkoutBtn" class="btn" onclick="checkout()">Buyurtma berish</button>
+      <div class="checkout-note">Buyurtma berilgach savatcha tozalanadi.</div>
     </div>
   </div>
 </div>
@@ -288,8 +288,54 @@ async function removeFromCart(cartId, btn){
   }
 }
 
-function checkout(){
-  alert("Buyurtma berish API'si hali ulanmagan.");
+/* Buyurtma berish — POST /api/orders/ (savatchadagi taomlardan) */
+async function checkout(){
+  if(!cart.length) return;
+  const btn = document.getElementById("checkoutBtn");
+  btn.disabled = true; btn.textContent = "Buyurtma berilmoqda…";
+
+  // savatchadagi taomlarni menu_item bo'yicha guruhlab, quantity hisoblaymiz
+  const qtyByMenu = {};
+  cart.forEach(c => {
+    const id = c.menu?.id;
+    if(id == null) return;
+    qtyByMenu[id] = (qtyByMenu[id] || 0) + 1;
+  });
+  const items = Object.entries(qtyByMenu).map(([menu_item, quantity]) => ({
+    menu_item: Number(menu_item), quantity
+  }));
+
+  try{
+    const r = await apiFetch(API + "/orders/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items })
+    });
+    if(!r.ok){
+      const d = await r.json().catch(()=>({}));
+      throw new Error(errText(d, "Buyurtma berishda xatolik."));
+    }
+    await clearCart();                 // muvaffaqiyat: savatchani tozalaymiz
+    window.location.href = "order.html";
+  }catch(e){
+    alert(e.message || "Buyurtma berishda xatolik.");
+    btn.disabled = false; btn.textContent = "Buyurtma berish";
+  }
+}
+
+/* Barcha savat yozuvlarini o'chiradi */
+async function clearCart(){
+  await Promise.all(cart.map(c =>
+    apiFetch(API + "/cart-remove/" + c.id + "/", { method: "DELETE" }).catch(()=>{})
+  ));
+  cart = [];
+}
+
+function errText(d, fallback){
+  try{
+    if(d && d.error) return Array.isArray(d.error) ? d.error.join(" ") : d.error;
+    return Object.entries(d).map(([k,v])=>k+": "+(Array.isArray(v)?v.join(", "):v)).join(" | ") || fallback;
+  }catch(e){ return fallback; }
 }
 
 init();
