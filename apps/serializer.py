@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from .models import Category, MenuItem, Order, OrderItem, User, Cart
+from .models import Category, Product, Order, OrderItem, User, Cart
 
 # ==============================================================================
 class RegisterSerializer(ModelSerializer):
@@ -25,20 +25,46 @@ class RegisterSerializer(ModelSerializer):
 
 # ==============================================================================
 class CategoryListSerializer(ModelSerializer):
+    """Kategoriya. `children` — shu bo'lim ostidagi kategoriyalar nomlari."""
+    children = serializers.SerializerMethodField()
+    product_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['id', 'name', 'parent', 'children', 'product_count', 'created_at']
 
-class MenuItemListSerializer(ModelSerializer):
+    def get_children(self, obj):
+        return [{'id': c.id, 'name': c.name} for c in obj.children.all()]
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+
+class ProductListSerializer(ModelSerializer):
+    """Mahsulot. `final_price` — chegirma bo'lsa chegirma narxi."""
+    final_price = serializers.ReadOnlyField()
+    in_stock = serializers.ReadOnlyField()
+    category_name = serializers.CharField(source='category.name', read_only=True)
+
     class Meta:
-        model = MenuItem
-        fields = '__all__'
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'description', 'category', 'category_name', 'image',
+            'price', 'discount_price', 'final_price',
+            'sku', 'barcode', 'brand', 'unit', 'stock', 'in_stock', 'weight',
+            'is_active', 'created_at',
+        ]
+        read_only_fields = ['slug', 'final_price', 'in_stock', 'category_name']
+
 
 class OrderItemListSerializer(ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
     class Meta:
         model = OrderItem
-        fields = '__all__'
-        read_only_fields = ['menu_price', 'order']
+        fields = ['id', 'order', 'product', 'product_name', 'quantity', 'price']
+        read_only_fields = ['price', 'order', 'product_name']
+
 
 class OrderListSerializer(ModelSerializer):
     items = OrderItemListSerializer(many=True)
@@ -50,18 +76,26 @@ class OrderListSerializer(ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        
+
         for item_data in items_data:
-            menu_item = item_data['menu_item']
-            if not menu_item.is_available:
+            product = item_data['product']
+            if not product.is_active:
                 raise serializers.ValidationError(
-                    {"error": f"'{menu_item.name}' taomi hozirda mavjud emas! Buyurtma berib bo'lmaydi."}
+                    {"error": f"'{product.name}' mahsuloti sotuvda emas! Buyurtma berib bo'lmaydi."}
+                )
+            if product.stock < item_data.get('quantity', 1):
+                raise serializers.ValidationError(
+                    {"error": f"'{product.name}' omborda yetarli emas (mavjud: {product.stock} {product.unit})."}
                 )
 
         order = Order.objects.create(**validated_data)
-        
+
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)
+            # buyurtma berilgach ombordan ayiramiz
+            product = item_data['product']
+            product.stock = max(0, product.stock - item_data.get('quantity', 1))
+            product.save(update_fields=['stock'])
         return order
 
 
@@ -71,12 +105,9 @@ class OrderUpdateSerializer(ModelSerializer):
         fields = ['status', ]
 
 
-
 class GetMeSerializer(ModelSerializer):
     class Meta:
         model = User
-        # fields = '__all__'
-        # fields = []
         exclude = ['password', 'groups', 'user_permissions']
 
 
@@ -90,13 +121,15 @@ class UserUpdateSerializer(ModelSerializer):
 
 
 class CartListSerializer(ModelSerializer):
-    menu = MenuItemListSerializer()
+    product = ProductListSerializer()
+
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'menu']
+        fields = ['id', 'user', 'product']
 
 
 class CartCreateSerializer(ModelSerializer):
     class Meta:
         model = Cart
-        fields = ['user', 'menu']
+        fields = ['user', 'product']
+        read_only_fields = ['user']

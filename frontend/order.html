@@ -222,20 +222,18 @@ function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ "&":"&amp;","<
 
 /* ---------- Init ---------- */
 let orders = [];
-let menuMap = {};   // { menu_item_id: name }
 let isAdmin = false;
 
 async function init(){
   try{
-    // buyurtmalar, menyu lug'ati va foydalanuvchi rolini birga olamiz
-    const [ordersData, menuData, me] = await Promise.all([
+    // buyurtmalar va foydalanuvchi rolini birga olamiz
+    // (mahsulot nomi API javobida product_name sifatida keladi)
+    const [ordersData, me] = await Promise.all([
       fetchAll(API + "/orders/"),
-      fetchAll(API + "/menu-items/").catch(()=>[]),
       apiFetch(API + "/me/").then(r => r.ok ? r.json() : null).catch(()=>null),
     ]);
     orders = ordersData;
     isAdmin = !!(me && me.is_staff);
-    menuData.forEach(m => { menuMap[m.id] = m.name; });
   }catch(e){
     document.getElementById("gate").innerHTML =
       '<div class="empty">Buyurtmalarni yuklab bo\'lmadi. <a href="index.html">Menyuga qaytish</a></div>';
@@ -253,7 +251,7 @@ function render(){
   }
   const wrap = document.getElementById("orderList");
   if(!orders.length){
-    wrap.innerHTML = '<div class="card"><div class="empty">Hali buyurtma yo\'q.<br><a href="index.html">Menyudan buyurtma bering</a></div></div>';
+    wrap.innerHTML = '<div class="card"><div class="empty">Hali buyurtma yo\'q.<br><a href="index.html">Katalogdan buyurtma bering</a></div></div>';
     return;
   }
   // eng yangi buyurtma tepada
@@ -261,17 +259,17 @@ function render(){
   wrap.innerHTML = sorted.map(orderCard).join("");
 }
 
-function menuName(id){ return menuMap[id] || ("Taom #" + id); }
+function productName(oi){ return oi.product_name || ("Mahsulot #" + oi.product); }
 
 function orderCard(o){
   const st = STATUS[o.status] || { label: o.status || "—", cls: "pending" };
   const items = (o.items || []).map(oi => {
     const qty = Number(oi.quantity || 0);
-    const unit = Number(oi.menu_price || 0);
+    const unit = Number(oi.price || 0);
     const line = qty * unit;
     return `<div class="oi">
       <span class="oi-qty">${qty}×</span>
-      <span class="oi-name">${esc(menuName(oi.menu_item))}</span>
+      <span class="oi-name">${esc(productName(oi))}</span>
       <span class="oi-unit">(${esc(fmtPrice(unit))})</span>
       <span class="oi-leader"></span>
       <span class="oi-sum">${esc(fmtPrice(line))}</span>

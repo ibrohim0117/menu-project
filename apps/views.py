@@ -12,11 +12,11 @@ from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from drf_spectacular.utils import extend_schema
-from .models import Category, MenuItem, Order, OrderItem, User, Cart
+from .models import Category, Product, Order, OrderItem, User, Cart
 from .serializer import (
-    CategoryListSerializer, 
-    MenuItemListSerializer, 
-    OrderItemListSerializer, 
+    CategoryListSerializer,
+    ProductListSerializer,
+    OrderItemListSerializer,
     OrderListSerializer,
     RegisterSerializer, GetMeSerializer,
     UserUpdateSerializer, CartListSerializer,
@@ -45,6 +45,11 @@ class CategoryListCreateApiView(ListCreateAPIView):
     serializer_class = CategoryListSerializer
     pagination_class = StandardResultsSetPagination
 
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    # ?parent=<id> — shu bo'lim ostidagilar, ?parent__isnull=true — faqat bo'limlar
+    filterset_fields = {'parent': ['exact', 'isnull']}
+    search_fields = ['name']
+
     def get_permissions(self):
         if self.request.method == "GET":
             return [AllowAny()]
@@ -63,32 +68,36 @@ class CategoryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
 
 # ==============================================================================
 
-@extend_schema(tags=['menu-item'])
-class MenuItemListCreateApiView(ListCreateAPIView):
-    queryset = MenuItem.objects.all()
-    serializer_class = MenuItemListSerializer
+@extend_schema(tags=['product'])
+class ProductListCreateApiView(ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductListSerializer
     # Global PAGE_SIZE=5 (settings.py > REST_FRAMEWORK) ishlatiladi
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    
+
     filterset_fields = {
         'category': ['exact'],
-        'is_available': ['exact'],
+        'category__parent': ['exact'],   # bo'lim bo'yicha filtr
+        'is_active': ['exact'],
+        'brand': ['exact'],
+        'unit': ['exact'],
         'price': ['gte', 'lte'],
+        'stock': ['gte', 'lte'],
     }
-    search_fields = ['name', 'description']
-    ordering_fields = ['price', 'created_at']
+    search_fields = ['name', 'description', 'sku', 'barcode', 'brand']
+    ordering_fields = ['price', 'created_at', 'stock', 'name']
 
     def get_permissions(self):
         if self.request.method == "GET":
             return [AllowAny()]
         return [IsAdminUser()]
-    
 
-@extend_schema(tags=['menu-item'])
-class MenuItemRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
-    queryset = MenuItem.objects.all()
-    serializer_class = MenuItemListSerializer
+
+@extend_schema(tags=['product'])
+class ProductRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductListSerializer
 
     def get_permissions(self):
         if self.request.method == "GET":

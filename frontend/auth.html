@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menyu Boshqaruvi</title>
+<title>Kirish · Do'kon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -487,18 +487,18 @@ async function loadItems(){
   menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
   try{
     const url = currentFilter
-      ? API + "/menu-items/?" + ITEM_CAT_PARAM + "=" + encodeURIComponent(currentFilter)
-      : API + "/menu-items/";
+      ? API + "/products/?" + ITEM_CAT_PARAM + "=" + encodeURIComponent(currentFilter)
+      : API + "/products/";
     items = await fetchAll(url);
-  }catch(e){ items=[]; menuList.innerHTML='<div class="empty">Menyuni yuklab bo\'lmadi.</div>'; return; }
+  }catch(e){ items=[]; menuList.innerHTML='<div class="empty">Mahsulotlarni yuklab bo\'lmadi.</div>'; return; }
   renderItems();
 }
 function renderItems(){
-  itemCount.textContent = items.length ? items.length+" ta taom" : "";
+  itemCount.textContent = items.length ? items.length+" ta mahsulot" : "";
   if(!items.length){
     menuList.innerHTML = currentFilter
-      ? '<div class="empty">Bu kategoriyada taom yo\'q.</div>'
-      : '<div class="empty">Menyu bo\'sh. Yuqorida birinchi taomni qo\'shing.</div>';
+      ? '<div class="empty">Bu kategoriyada mahsulot yo\'q.</div>'
+      : '<div class="empty">Katalog bo\'sh. Yuqorida birinchi mahsulotni qo\'shing.</div>';
     return;
   }
 
@@ -543,12 +543,12 @@ async function createItem(){
   const price = itemPrice.value;
   const category = itemCategory.value;
   const description = itemDesc.value.trim();
-  if(!name) return showMsg("itemMsg","Taom nomini kiriting.","err");
+  if(!name) return showMsg("itemMsg","Mahsulot nomini kiriting.","err");
   if(price==="") return showMsg("itemMsg","Narxni kiriting.","err");
   if(!category) return showMsg("itemMsg","Avval kategoriya qo'shing va tanlang.","err");
   const body = { name, price, category, description };
   try{
-    const r = await apiFetch(API+"/menu-items/", {
+    const r = await apiFetch(API+"/products/", {
       method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
     });
     if(!r.ok){ const d=await r.json().catch(()=>({})); return showMsg("itemMsg", errText(d,"Saqlashda xatolik."), "err"); }
@@ -558,11 +558,11 @@ async function createItem(){
 }
 async function editItem(id){
   const it = items.find(x=>String(x.id)===String(id)); if(!it) return;
-  const name = prompt("Taom nomi:", itemName_(it)); if(name===null) return;
+  const name = prompt("Mahsulot nomi:", itemName_(it)); if(name===null) return;
   const price = prompt("Narxi:", it.price ?? ""); if(price===null) return;
   const body = { name:name.trim(), price };
   try{
-    const r = await apiFetch(API+"/menu-items/"+id+"/", {
+    const r = await apiFetch(API+"/products/"+id+"/", {
       method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
     });
     if(!r.ok) return showMsg("itemMsg","Tahrirlashda xatolik.","err");
@@ -570,9 +570,9 @@ async function editItem(id){
   }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }
 }
 async function deleteItem(id){
-  if(!confirm("Taom o'chirilsinmi?")) return;
+  if(!confirm("Mahsulot o'chirilsinmi?")) return;
   try{
-    const r = await apiFetch(API+"/menu-items/"+id+"/", { method:"DELETE" });
+    const r = await apiFetch(API+"/products/"+id+"/", { method:"DELETE" });
     if(!r.ok && r.status!==204) return showMsg("itemMsg","O'chirishda xatolik.","err");
     loadItems();
   }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }

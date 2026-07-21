@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Savatcha · Menyu</title>
+<title>Savatcha · Do'kon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -83,6 +83,7 @@
   .dish-name { font-family: "Fraunces", serif; font-size: 17px; font-weight: 500; }
   .dish-cat { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
   .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+  .old-price { font-size: 13px; font-weight: 400; color: var(--muted); text-decoration: line-through; margin-right: 4px; }
   .na-tag { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
     color: var(--brick); background: #fbeceb; border: 1px solid #f1cfcc;
     border-radius: 6px; padding: 2px 7px; margin-left: 9px; vertical-align: middle;
@@ -122,11 +123,11 @@
 
   <!-- HEADER -->
   <div class="masthead">
-    <div class="eyebrow">Restoran · Menyu</div>
+    <div class="eyebrow">Do'kon · Savatcha</div>
     <div class="masthead-row">
       <h1 class="title">Savatcha</h1>
       <div class="top-actions">
-        <a class="back-link" href="index.html">← Menyuga qaytish</a>
+        <a class="back-link" href="index.html">← Katalogga qaytish</a>
         <button class="link-btn" onclick="logout()">Chiqish</button>
       </div>
     </div>
@@ -139,7 +140,7 @@
   <div id="content" class="hidden">
     <div class="card">
       <div class="card-head">
-        <h2>Tanlangan taomlar</h2>
+        <h2>Tanlangan mahsulotlar</h2>
         <span id="itemCount" class="count"></span>
       </div>
       <div id="cartList"></div>
@@ -227,7 +228,7 @@ async function init(){
     cart = await fetchAll(API + "/carts/");
   }catch(e){
     document.getElementById("gate").innerHTML =
-      '<div class="empty">Savatchani yuklab bo\'lmadi. <a href="index.html">Menyuga qaytish</a></div>';
+      '<div class="empty">Savatchani yuklab bo\'lmadi. <a href="index.html">Katalogga qaytish</a></div>';
     return;
   }
   document.getElementById("gate").classList.add("hidden");
@@ -240,14 +241,14 @@ function render(){
   document.getElementById("itemCount").textContent = cart.length ? cart.length + " ta" : "";
 
   if(!cart.length){
-    list.innerHTML = '<div class="empty">Savatcha bo\'sh.<br><a href="index.html">Menyudan taom qo\'shing</a></div>';
+    list.innerHTML = '<div class="empty">Savatcha bo\'sh.<br><a href="index.html">Katalogdan mahsulot qo\'shing</a></div>';
     document.getElementById("summaryCard").classList.add("hidden");
     return;
   }
 
   list.innerHTML = cart.map(c => row(c)).join("");
 
-  const total = cart.reduce((sum, c) => sum + Number(c.menu?.price || 0), 0);
+  const total = cart.reduce((sum, c) => sum + Number(c.product?.final_price ?? c.product?.price ?? 0), 0);
   document.getElementById("total").textContent = fmtPrice(total);
   document.getElementById("summaryCard").classList.remove("hidden");
 }
@@ -255,17 +256,30 @@ function render(){
 const TRASH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>`;
 
 function row(c){
-  const m = c.menu || {};
-  const img = imgUrl(m.image);
+  const p = c.product || {};
+  const img = imgUrl(p.image);
   const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : `<div class="dish-thumb"></div>`;
-  const na = m.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
+
+  // sotuvda emas / omborda yo'q holatlari
+  let tag = "";
+  if (p.is_active === false) tag = `<span class="na-tag">Sotuvda emas</span>`;
+  else if (p.in_stock === false) tag = `<span class="na-tag">Omborda yo'q</span>`;
+
+  // chegirma bo'lsa eski narx chizib ko'rsatiladi
+  const hasDiscount = p.discount_price != null && Number(p.discount_price) < Number(p.price);
+  const priceHtml = hasDiscount
+    ? `<span class="old-price">${esc(fmtPrice(p.price))}</span> ${esc(fmtPrice(p.discount_price))}`
+    : esc(fmtPrice(p.price));
+
+  const meta = [p.brand, p.category_name].filter(Boolean).join(" · ");
+
   return `<div class="dish" data-cart="${c.id}">
     ${thumb}
     <div class="dish-main">
-      <div class="dish-name">${esc(m.name || "(nomsiz)")}${na}</div>
-      ${m.description ? `<div class="dish-cat">${esc(m.description)}</div>` : ""}
+      <div class="dish-name">${esc(p.name || "(nomsiz)")}${tag}</div>
+      ${meta ? `<div class="dish-cat">${esc(meta)}</div>` : ""}
     </div>
-    <div class="dish-price">${esc(fmtPrice(m.price))}</div>
+    <div class="dish-price">${priceHtml}</div>
     <button class="remove-btn" title="O'chirish" aria-label="O'chirish" onclick="removeFromCart(${c.id}, this)">${TRASH_SVG}</button>
   </div>`;
 }
@@ -288,21 +302,21 @@ async function removeFromCart(cartId, btn){
   }
 }
 
-/* Buyurtma berish — POST /api/orders/ (savatchadagi taomlardan) */
+/* Buyurtma berish — POST /api/orders/ (savatchadagi mahsulotlardan) */
 async function checkout(){
   if(!cart.length) return;
   const btn = document.getElementById("checkoutBtn");
   btn.disabled = true; btn.textContent = "Buyurtma berilmoqda…";
 
-  // savatchadagi taomlarni menu_item bo'yicha guruhlab, quantity hisoblaymiz
-  const qtyByMenu = {};
+  // savatchadagi mahsulotlarni product bo'yicha guruhlab, quantity hisoblaymiz
+  const qtyByProduct = {};
   cart.forEach(c => {
-    const id = c.menu?.id;
+    const id = c.product?.id;
     if(id == null) return;
-    qtyByMenu[id] = (qtyByMenu[id] || 0) + 1;
+    qtyByProduct[id] = (qtyByProduct[id] || 0) + 1;
   });
-  const items = Object.entries(qtyByMenu).map(([menu_item, quantity]) => ({
-    menu_item: Number(menu_item), quantity
+  const items = Object.entries(qtyByProduct).map(([product, quantity]) => ({
+    product: Number(product), quantity
   }));
 
   try{

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menyu</title>
+<title>Katalog · Do'kon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -70,6 +70,7 @@
     animation: rise .5s ease both;
   }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
 
   /* ---------- Profile block ---------- */
   .profile { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; }
@@ -109,10 +110,10 @@
     display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   }
   .side-head .count { font-family: "Inter", sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); }
-  .cat-list { display: flex; flex-direction: column; gap: 4px; }
+  .cat-list { display: flex; flex-direction: column; gap: 2px; }
   .cat-btn {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    width: 100%; padding: 10px 13px; border-radius: 10px;
+    width: 100%; padding: 9px 12px; border-radius: 10px;
     background: transparent; border: 1px solid transparent; cursor: pointer;
     font: inherit; font-size: 13.5px; color: var(--ink); text-align: left;
     transition: background .15s, border-color .15s, color .15s;
@@ -121,8 +122,15 @@
   .cat-btn.active { background: var(--green); color: #fbfaf6; }
   .cat-btn .n { font-size: 12px; color: var(--muted); }
   .cat-btn.active .n { color: rgba(251,250,246,.75); }
+  /* bo'lim (root) */
+  .cat-btn.dept { font-weight: 600; margin-top: 8px; }
+  .cat-btn.dept:first-child { margin-top: 0; }
+  /* bo'lim ostidagi kategoriya */
+  .cat-btn.child { padding-left: 24px; font-size: 13px; color: var(--muted); }
+  .cat-btn.child:hover { color: var(--ink); }
+  .cat-btn.child.active { color: #fbfaf6; }
 
-  /* ---------- Menu (center) ---------- */
+  /* ---------- Product list (center) ---------- */
   .card-head {
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 12px; margin-bottom: 18px;
@@ -147,7 +155,13 @@
   .dish-name { font-family: "Fraunces", serif; font-size: 17px; font-weight: 500; white-space: nowrap; }
   .leader { flex: 1; border-bottom: 1.5px dotted var(--line); transform: translateY(-3px); min-width: 20px; }
   .dish-price { font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+  .old-price { font-size: 13px; font-weight: 400; color: var(--muted); text-decoration: line-through; margin-right: 5px; }
   .dish-desc { font-size: 13.5px; color: var(--muted); margin-top: 3px; max-width: 60ch; }
+  .dish-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 5px; font-size: 12px; color: var(--muted); }
+  .brand-tag { font-weight: 600; color: var(--ink); }
+  .stock-tag { color: var(--green); }
+  .stock-tag.low { color: var(--ochre); }
+  .stock-tag.out { color: var(--brick); }
 
   /* ---------- Cart button ---------- */
   .cart-btn {
@@ -165,6 +179,18 @@
   .cart-btn.failed { background: var(--brick); color: #fff; border-color: var(--brick); }
   body.compact .cart-btn { width: 34px; height: 34px; }
   body.compact .cart-btn svg { width: 17px; height: 17px; }
+
+  /* ---------- Search ---------- */
+  .search-row { margin-bottom: 16px; }
+  .search-row input {
+    width: 100%; padding: 11px 14px; font: inherit; font-size: 14px;
+    color: var(--ink); background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; transition: border-color .15s, box-shadow .15s;
+  }
+  .search-row input:focus {
+    outline: none; border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(47,107,79,.12);
+  }
 
   .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 26px 10px; }
 
@@ -185,58 +211,16 @@
   .page-btn:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
   .page-btn:disabled { opacity: .45; cursor: default; }
 
-  /* ---------- Modal ---------- */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(34,31,26,.32);
-    display: none; align-items: center; justify-content: center;
-    padding: 20px; z-index: 40;
-  }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: var(--r); box-shadow: 0 20px 60px rgba(34,31,26,.22);
-    padding: 26px; width: 100%; max-width: 420px;
-    animation: rise .3s ease both;
-  }
-  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .modal-head h3 { font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; }
-  .modal-close {
-    background: transparent; border: none; cursor: pointer; color: var(--muted);
-    font-size: 22px; line-height: 1; width: 30px; height: 30px; border-radius: 8px;
-  }
-  .modal-close:hover { background: var(--paper); color: var(--ink); }
-
-  .kv { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-  .kv:last-child { border-bottom: none; }
-  .kv .k { color: var(--muted); }
-  .kv .v { font-weight: 500; text-align: right; }
-
-  .setting {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    padding: 13px 0; border-bottom: 1px solid var(--line);
-  }
-  .setting:last-child { border-bottom: none; }
-  .setting .s-name { font-size: 14px; font-weight: 500; }
-  .setting .s-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
-  .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .track {
-    position: absolute; inset: 0; background: var(--line); border-radius: 999px;
-    cursor: pointer; transition: background .18s;
-  }
-  .track::before {
-    content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px;
-    background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
-  }
-  .switch input:checked + .track { background: var(--green); }
-  .switch input:checked + .track::before { transform: translateX(18px); }
-
-  .hidden { display: none !important; }
-
   .na-tag { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
     color: var(--brick); background: #fbeceb; border: 1px solid #f1cfcc;
     border-radius: 6px; padding: 2px 7px; margin-left: 9px; vertical-align: middle;
     font-family: "Inter", sans-serif; font-weight: 600; white-space: nowrap; }
+  .sale-tag { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+    color: #fbfaf6; background: var(--brick); border: 1px solid var(--brick);
+    border-radius: 6px; padding: 2px 7px; margin-left: 9px; vertical-align: middle;
+    font-family: "Inter", sans-serif; font-weight: 600; white-space: nowrap; }
+
+  .hidden { display: none !important; }
 
   /* ---------- Compact view ---------- */
   body.compact .dish { padding: 9px 0; }
@@ -248,9 +232,9 @@
 <div class="wrap">
 
   <div class="masthead">
-    <div class="eyebrow">Restoran · Menyu</div>
+    <div class="eyebrow">Do'kon · Katalog</div>
     <div class="masthead-row">
-      <h1 class="title">Menyu</h1>
+      <h1 class="title">Katalog</h1>
       <div class="status">
         <span id="dot" class="dot on"></span>
         <span id="statusLabel" class="label">Yuklanmoqda...</span>
@@ -295,12 +279,15 @@
       </div>
     </aside>
 
-    <!-- CENTER: menu list -->
+    <!-- CENTER: product list -->
     <main>
       <div class="card">
         <div class="card-head">
-          <h2>Taomlar</h2>
+          <h2 id="listTitle">Mahsulotlar</h2>
           <span id="itemCount" class="count"></span>
+        </div>
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="Mahsulot, brend yoki artikul bo'yicha qidirish…">
         </div>
         <div id="menuList"></div>
         <div id="pager" class="pager"></div>
@@ -311,7 +298,7 @@
     <aside class="side">
       <div class="card">
         <div class="side-head">
-          Kategoriyalar
+          Bo'limlar
           <span id="catCount" class="count"></span>
         </div>
         <div id="catList" class="cat-list"></div>
@@ -325,11 +312,13 @@
 const API = "http://127.0.0.1:8000/api";
 const MEDIA_ORIGIN = "http://127.0.0.1:8000";   // rasm nisbiy URL bo'lsa old qo'shiladi
 const PAGE_SIZE = 5;          // backend REST_FRAMEWORK PAGE_SIZE bilan bir xil
-let currentFilter = null;     // null = hammasi
+
+// filtr: { type: "all" | "dept" | "cat", id }
+let currentFilter = { type: "all", id: null };
 let currentPage = 1;
+let currentSearch = "";
 let pageData = { results: [], count: 0, next: null, previous: null };
-let categories = [];
-let catCounts = {};           // { all: N, <catId>: N }
+let categories = [];          // barcha kategoriyalar (bo'lim + ichkilari)
 let currentUser = null;
 let isAdmin = false;
 
@@ -398,10 +387,8 @@ async function checkUserRole(){
     if (r.ok){
       currentUser = await r.json();
       isAdmin = !!currentUser.is_staff;
-      statusLabel.textContent = "Tizimga kirildi";
-    } else {
-      statusLabel.textContent = "Tizimga kirildi";
     }
+    statusLabel.textContent = "Tizimga kirildi";
   }catch(e){
     statusLabel.textContent = "Aloqa yo'q";
     isAdmin = false;
@@ -413,7 +400,7 @@ async function checkUserRole(){
 function renderProfileHeader(){
   const u = currentUser || {};
   const name = u.username || u.name || "Foydalanuvchi";
-  const img = imgUrl(u);   // profil rasmi bo'lsa
+  const img = imgUrl(u.image);   // profil rasmi bo'lsa
   if (img){
     avatar.textContent = "";
     avatar.style.backgroundImage = `url("${img}")`;
@@ -436,55 +423,57 @@ async function init(){
   applyCompact();
 }
 
-/* ---------- Categories ---------- */
-const catName = (c)=> c.name ?? c.title ?? c.category ?? "(nomsiz)";
+/* ---------- Categories (ierarxik) ---------- */
+const catName = (c)=> c.name ?? "(nomsiz)";
 
 async function loadCategories(){
   try{
     categories = await fetchAll(API+"/categories/");
   }catch(e){ categories = []; }
-  await loadCategoryCounts();
 }
 
-/* Kategoriya sonlarini serverdan olamiz (paginatsiya javobidagi `count` maydoni) */
-async function fetchCount(url){
-  try{
-    const r = await apiFetch(url);
-    if(!r.ok) return 0;
-    const d = await r.json();
-    return Array.isArray(d) ? d.length : (d.count ?? 0);
-  }catch(e){ return 0; }
-}
-async function loadCategoryCounts(){
-  catCounts = {};
-  const jobs = [ fetchCount(API+"/menu-items/").then(n => catCounts.all = n) ];
-  categories.forEach(c => jobs.push(
-    fetchCount(API+"/menu-items/?category="+c.id).then(n => catCounts[c.id] = n)
-  ));
-  await Promise.all(jobs);
+const rootCats  = ()=> categories.filter(c => c.parent === null);
+const childrenOf = (id)=> categories.filter(c => String(c.parent) === String(id));
+/* kategoriyaning o'z mahsulotlari soni serverdan keladi (product_count) */
+const catTotal  = (c)=> Number(c.product_count || 0);
+/* bo'lim jami = ichidagi kategoriyalar yig'indisi + o'zidagi mahsulotlar */
+const deptTotal = (d)=> childrenOf(d.id).reduce((s,c)=> s + catTotal(c), 0) + catTotal(d);
+
+function isActiveFilter(type, id){
+  return currentFilter.type === type && String(currentFilter.id) === String(id);
 }
 
 function renderCategories(){
-  catCount.textContent = categories.length ? categories.length + " ta" : "";
-  const total = catCounts.all ?? 0;
-  let html = `<button class="cat-btn ${currentFilter===null?'active':''}" data-f="all">
-      <span>Hammasi</span><span class="n">${total}</span></button>`;
+  const roots = rootCats();
+  catCount.textContent = roots.length ? roots.length + " ta" : "";
 
-  categories.forEach(c=>{
-    const n = catCounts[c.id] ?? 0;
-    if (settings.hideEmpty && n === 0) return;
-    const on = String(currentFilter) === String(c.id);
-    html += `<button class="cat-btn ${on?'active':''}" data-f="${c.id}">
-        <span>${esc(catName(c))}</span><span class="n">${n}</span></button>`;
+  const grandTotal = categories.reduce((s,c)=> s + catTotal(c), 0);
+  let html = `<button class="cat-btn dept ${currentFilter.type==='all'?'active':''}" data-t="all" data-i="">
+      <span>Hammasi</span><span class="n">${grandTotal}</span></button>`;
+
+  roots.forEach(d=>{
+    const dTotal = deptTotal(d);
+    if (settings.hideEmpty && dTotal === 0) return;
+
+    html += `<button class="cat-btn dept ${isActiveFilter('dept', d.id)?'active':''}" data-t="dept" data-i="${d.id}">
+        <span>${esc(catName(d))}</span><span class="n">${dTotal}</span></button>`;
+
+    childrenOf(d.id).forEach(c=>{
+      const n = catTotal(c);
+      if (settings.hideEmpty && n === 0) return;
+      html += `<button class="cat-btn child ${isActiveFilter('cat', c.id)?'active':''}" data-t="cat" data-i="${c.id}">
+          <span>${esc(catName(c))}</span><span class="n">${n}</span></button>`;
+    });
   });
 
   if (!categories.length){
     html += `<div class="empty" style="padding:10px">Kategoriya yo'q.</div>`;
   }
   catList.innerHTML = html;
-  catList.querySelectorAll("[data-f]").forEach(b=>{
+  catList.querySelectorAll("[data-t]").forEach(b=>{
     b.onclick = ()=>{
-      currentFilter = b.dataset.f === "all" ? null : b.dataset.f;
+      const t = b.dataset.t;
+      currentFilter = t === "all" ? { type:"all", id:null } : { type:t, id:b.dataset.i };
       currentPage = 1;               // filtr o'zgarganda 1-sahifadan boshlanadi
       renderCategories();
       loadItems();
@@ -492,8 +481,8 @@ function renderCategories(){
   });
 }
 
-/* ---------- Menu items ---------- */
-const itemName_ = (i)=> i.name ?? i.title ?? "(nomsiz)";
+/* ---------- Products ---------- */
+const itemName_ = (i)=> i.name ?? "(nomsiz)";
 function itemCatId(i){
   const c = i.category;
   if (c && typeof c === "object") return c.id;
@@ -509,41 +498,56 @@ function fmtPrice(p){
   if (Number.isNaN(n)) return String(p);
   return n.toLocaleString("uz-UZ") + " so'm";
 }
-function imgUrl(i){
-  const u = i.image;
+function imgUrl(src){
+  const u = (src && typeof src === "object") ? src.image : src;
   if(!u) return "";
   return /^https?:\/\//.test(u) ? u : MEDIA_ORIGIN + (u.startsWith("/") ? u : "/"+u);
+}
+
+/* Joriy filtr + qidiruv + sahifa bo'yicha URL */
+function buildUrl(){
+  let url = API + "/products/?page=" + currentPage;
+  if (currentFilter.type === "cat")  url += "&category=" + currentFilter.id;
+  if (currentFilter.type === "dept") url += "&category__parent=" + currentFilter.id;
+  if (currentSearch) url += "&search=" + encodeURIComponent(currentSearch);
+  return url;
+}
+
+function currentTitle(){
+  if (currentFilter.type === "all") return "Mahsulotlar";
+  const c = categories.find(x => String(x.id) === String(currentFilter.id));
+  return c ? catName(c) : "Mahsulotlar";
 }
 
 async function loadItems(){
   menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
   pager.innerHTML = "";
-  let url = API + "/menu-items/?page=" + currentPage;
-  if (currentFilter !== null) url += "&category=" + currentFilter;
   try{
-    const r = await apiFetch(url);
+    const r = await apiFetch(buildUrl());
     if(!r.ok) throw new Error("status " + r.status);
     pageData = await r.json();
   }catch(e){
     pageData = { results: [], count: 0, next: null, previous: null };
-    menuList.innerHTML = '<div class="empty">Menyuni yuklab bo\'lmadi.</div>';
+    menuList.innerHTML = '<div class="empty">Mahsulotlarni yuklab bo\'lmadi.</div>';
     return;
   }
+  listTitle.textContent = currentTitle();
   renderItems();
   renderPager();
 }
 
 function renderItems(){
   const visible = pageData.results || [];
-  itemCount.textContent = pageData.count ? pageData.count + " ta taom" : "";
+  itemCount.textContent = pageData.count ? pageData.count + " ta mahsulot" : "";
 
   if(!visible.length){
-    menuList.innerHTML = currentFilter
-      ? '<div class="empty">Bu kategoriyada taom yo\'q.</div>'
-      : '<div class="empty">Menyu bo\'sh.</div>';
+    menuList.innerHTML = currentSearch
+      ? '<div class="empty">Qidiruv bo\'yicha mahsulot topilmadi.</div>'
+      : '<div class="empty">Bu bo\'limda mahsulot yo\'q.</div>';
     return;
   }
 
+  // sahifadagi mahsulotlarni kategoriya bo'yicha guruhlaymiz
   const groups = {};
   visible.forEach(i=>{ const k = itemCatId(i) ?? "none"; (groups[k] ||= []).push(i); });
 
@@ -592,29 +596,52 @@ const CART_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
 
 function dishRow(i){
-  const price = fmtPrice(i.price);
+  const hasDiscount = i.discount_price != null && Number(i.discount_price) < Number(i.price);
+  const priceHtml = hasDiscount
+    ? `<span class="old-price">${esc(fmtPrice(i.price))}</span>${esc(fmtPrice(i.discount_price))}`
+    : esc(fmtPrice(i.price));
+
   const desc = i.description ? `<div class="dish-desc">${esc(i.description)}</div>` : "";
-  const na = i.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
-  const img = imgUrl(i);
-  const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : "";
-  const avail = i.is_available !== false;
-  const cartBtn = `<button class="cart-btn" ${avail ? "" : "disabled"} title="Savatga qo'shish"
+
+  let tag = "";
+  if (i.is_active === false) tag = `<span class="na-tag">Sotuvda emas</span>`;
+  else if (hasDiscount)      tag = `<span class="sale-tag">Chegirma</span>`;
+
+  // ombor holati
+  const stock = Number(i.stock || 0);
+  let stockCls = "stock-tag", stockText = `${stock} ${i.unit || "dona"} mavjud`;
+  if (stock === 0){ stockCls += " out"; stockText = "Omborda yo'q"; }
+  else if (stock <= 10){ stockCls += " low"; stockText = `Kam qoldi: ${stock} ${i.unit || "dona"}`; }
+
+  const metaParts = [];
+  if (i.brand) metaParts.push(`<span class="brand-tag">${esc(i.brand)}</span>`);
+  metaParts.push(`<span class="${stockCls}">${esc(stockText)}</span>`);
+  if (i.sku) metaParts.push(`<span>${esc(i.sku)}</span>`);
+  const meta = `<div class="dish-meta">${metaParts.join("<span>·</span>")}</div>`;
+
+  const img = imgUrl(i.image);
+  const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : `<div class="dish-thumb"></div>`;
+
+  const canBuy = i.is_active !== false && stock > 0;
+  const cartBtn = `<button class="cart-btn" ${canBuy ? "" : "disabled"} title="Savatga qo'shish"
       aria-label="Savatga qo'shish" onclick="addToCart(${i.id}, this)">${CART_SVG}</button>`;
+
   return `<div class="dish">
     ${thumb}
     <div class="dish-main">
       <div class="dish-top">
-        <span class="dish-name">${esc(itemName_(i))}${na}</span>
+        <span class="dish-name">${esc(itemName_(i))}${tag}</span>
         <span class="leader"></span>
-        <span class="dish-price">${esc(price)}</span>
+        <span class="dish-price">${priceHtml}</span>
       </div>
       ${desc}
+      ${meta}
     </div>
     ${cartBtn}
   </div>`;
 }
 
-/* Savatga qo'shish — POST /api/cart-create/ */
+/* Savatga qo'shish — POST /api/cart-create/ (user serverda request.user dan olinadi) */
 async function addToCart(id, btn){
   if (btn.disabled) return;
   btn.disabled = true;
@@ -622,7 +649,7 @@ async function addToCart(id, btn){
     const r = await apiFetch(API + "/cart-create/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: currentUser?.id, menu: id })
+      body: JSON.stringify({ product: id })
     });
     if(!r.ok) throw new Error("status " + r.status);
     btn.classList.add("added");           // muvaffaqiyat: ✓
@@ -633,6 +660,17 @@ async function addToCart(id, btn){
     setTimeout(()=>{ btn.classList.remove("failed"); btn.disabled = false; }, 1200);
   }
 }
+
+/* ---------- Search (debounce) ---------- */
+let searchTimer = null;
+searchInput.addEventListener("input", ()=>{
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>{
+    currentSearch = searchInput.value.trim();
+    currentPage = 1;
+    loadItems();
+  }, 350);
+});
 
 /* Sozlamalar settings.html'da o'zgartiriladi; bu yerda faqat qo'llanadi */
 function applyCompact(){ document.body.classList.toggle("compact", settings.compact); }

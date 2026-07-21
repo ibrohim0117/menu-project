@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView,
     CategoryListCreateApiView, CategoryRetrieveUpdateDestroyApiView,
-    MenuItemListCreateApiView, MenuItemRetrieveUpdateDestroyApiView,
+    ProductListCreateApiView, ProductRetrieveUpdateDestroyApiView,
     OrderListCreateApiView, OrderRetrieveUpdateDestroyApiView,
     OrderItemRetrieveUpdateDestroyApiView, OrderItemListCreateApiView, 
     GetMe, UserUpdate, CartListAPIView, CartCreateAPIView,
@@ -22,9 +22,9 @@ urlpatterns = [
     path('categories/', CategoryListCreateApiView.as_view(), name='category_list_create'),
     path('categories/<int:pk>/', CategoryRetrieveUpdateDestroyApiView.as_view(), name='category_detail'),
 
-    #Taomlar menyusi
-    path('menu-items/', MenuItemListCreateApiView.as_view(), name='menu_item_list_create'),
-    path('menu-items/<int:pk>/', MenuItemRetrieveUpdateDestroyApiView.as_view(), name='menu_item_detail'),
+    #Mahsulotlar
+    path('products/', ProductListCreateApiView.as_view(), name='product_list_create'),
+    path('products/<int:pk>/', ProductRetrieveUpdateDestroyApiView.as_view(), name='product_detail'),
 
     #Buyurtmalar
     path('orders/', OrderListCreateApiView.as_view(), name='order_list_create'),

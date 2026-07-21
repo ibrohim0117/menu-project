@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sozlamalar · Boshqaruv</title>
+<title>Sozlamalar · Do'kon boshqaruvi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -105,6 +105,9 @@
   .btn.auto { width: auto; }
   .add-inline { display: grid; grid-template-columns: 1fr 120px; gap: 12px; margin-bottom: 16px; }
   @media (max-width: 520px){ .add-inline { grid-template-columns: 1fr; } }
+  .add-cat { display: grid; grid-template-columns: 1fr 190px 120px; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 700px){ .add-cat { grid-template-columns: 1fr; } }
+  .chip.dept { background: var(--paper); border-color: var(--muted); font-weight: 600; }
   .icon-btn { background: transparent; border: 1px solid var(--line); color: var(--muted);
     padding: 6px 12px; font-size: 12.5px; font-weight: 500; }
   .icon-btn:hover { color: var(--ink); border-color: var(--muted); }
@@ -179,11 +182,11 @@
 
   <!-- HEADER -->
   <div class="masthead">
-    <div class="eyebrow">Restoran · Boshqaruv paneli</div>
+    <div class="eyebrow">Do'kon · Boshqaruv paneli</div>
     <div class="masthead-row">
       <h1 class="title">Sozlamalar</h1>
       <div class="top-actions">
-        <a class="back-link" href="index.html">← Menyuga qaytish</a>
+        <a class="back-link" href="index.html">← Katalogga qaytish</a>
         <button class="link-btn" onclick="logout()">Chiqish</button>
       </div>
     </div>
@@ -201,7 +204,7 @@
       <div class="setting">
         <div>
           <div class="s-name">Bo'sh kategoriyalar</div>
-          <div class="s-sub">Menyuda taomsiz kategoriyalarni yashirish</div>
+          <div class="s-sub">Katalogda mahsulotsiz kategoriyalarni yashirish</div>
         </div>
         <label class="switch">
           <input id="setHideEmpty" type="checkbox" onchange="toggleSetting('hideEmpty', this.checked)">
@@ -227,30 +230,73 @@
         <span id="catCount" class="count"></span>
       </div>
       <div id="catMsg" class="msg"></div>
-      <div class="add-inline">
-        <input id="newCatName" type="text" placeholder="Yangi kategoriya, masalan “Ichimliklar”">
+      <div class="add-cat">
+        <input id="newCatName" type="text" placeholder="Nomi, masalan “Sut mahsulotlari”">
+        <select id="newCatParent"></select>
         <button class="btn" onclick="createCategory()">Qo'shish</button>
       </div>
       <div id="catChips" class="chips"></div>
     </div>
 
-    <!-- Add / edit menu item -->
+    <!-- Add / edit product -->
     <div class="card">
-      <div class="card-head"><h2 id="itemFormTitle">Yangi taom qo'shish</h2></div>
+      <div class="card-head"><h2 id="itemFormTitle">Yangi mahsulot qo'shish</h2></div>
       <div id="itemMsg" class="msg"></div>
       <div class="grid-2">
         <div class="field">
-          <label>Taom nomi</label>
-          <input id="itemName" type="text" placeholder="masalan “Lag‘mon”">
+          <label>Mahsulot nomi</label>
+          <input id="itemName" type="text" placeholder="masalan “Sut 2.5%”">
         </div>
+        <div class="field">
+          <label>Brend (ixtiyoriy)</label>
+          <input id="itemBrand" type="text" placeholder="masalan “Nestle”">
+        </div>
+      </div>
+      <div class="grid-2">
         <div class="field">
           <label>Narxi</label>
           <input id="itemPrice" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Chegirma narxi (ixtiyoriy)</label>
+          <input id="itemDiscount" type="number" min="0" step="0.01" placeholder="chegirma yo'q">
         </div>
       </div>
       <div class="field">
         <label>Kategoriya</label>
         <select id="itemCategory"></select>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Ombordagi soni</label>
+          <input id="itemStock" type="number" min="0" step="1" value="0">
+        </div>
+        <div class="field">
+          <label>O'lchov birligi</label>
+          <select id="itemUnit">
+            <option value="dona">Dona</option>
+            <option value="kg">Kilogramm</option>
+            <option value="litr">Litr</option>
+            <option value="metr">Metr</option>
+            <option value="m2">Kvadrat metr</option>
+            <option value="quti">Quti</option>
+            <option value="paket">Paket</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Artikul / SKU (bo'sh qoldirilsa avtomatik)</label>
+          <input id="itemSku" type="text" placeholder="avtomatik">
+        </div>
+        <div class="field">
+          <label>Shtrix-kod (ixtiyoriy)</label>
+          <input id="itemBarcode" type="text" placeholder="masalan “4780012345678”">
+        </div>
+      </div>
+      <div class="field">
+        <label>Og'irligi, kg (ixtiyoriy)</label>
+        <input id="itemWeight" type="number" min="0" step="0.001" placeholder="0.000">
       </div>
       <div class="field">
         <label>Tavsif (ixtiyoriy)</label>
@@ -261,7 +307,7 @@
         <input id="itemImage" type="file" accept="image/*" onchange="previewImage()">
         <div id="imgPreview" class="img-preview hidden"><img id="imgPreviewEl" alt="oldindan ko'rish"></div>
       </div>
-      <label class="chk"><input id="itemAvailable" type="checkbox" checked> <span>Mavjud (buyurtma uchun ochiq)</span></label>
+      <label class="chk"><input id="itemAvailable" type="checkbox" checked> <span>Sotuvda (buyurtma uchun ochiq)</span></label>
       <div style="display:flex; gap:10px; flex-wrap:wrap">
         <button class="btn auto" onclick="saveItem()">Saqlash</button>
         <button id="itemCancelBtn" class="icon-btn hidden" onclick="resetItemForm()">Bekor qilish</button>
@@ -271,7 +317,7 @@
     <!-- Menu list -->
     <div class="card">
       <div class="card-head">
-        <h2>Menyu</h2>
+        <h2>Katalog</h2>
         <span id="itemCount" class="count"></span>
       </div>
       <div id="menuList"></div>
@@ -378,38 +424,75 @@ function toggleSetting(key, val){
 /* ---------- Categories ---------- */
 const catName = (c)=> c.name ?? c.title ?? c.category ?? "(nomsiz)";
 
+const rootCats   = ()=> categories.filter(c => c.parent === null);
+const childrenOf = (id)=> categories.filter(c => String(c.parent) === String(id));
+
 async function loadCategories(){
   try{ categories = await fetchAll(API+"/categories/"); }
   catch(e){ categories = []; }
   renderCategories();
   fillCategoryDropdown();
+  fillParentDropdown();
 }
+
+/* Yangi kategoriya uchun bo'lim tanlagichi */
+function fillParentDropdown(){
+  const opts = ['<option value="">— Yangi bo\'lim sifatida —</option>'];
+  rootCats().forEach(d => opts.push(`<option value="${d.id}">${esc(catName(d))} ostiga</option>`));
+  newCatParent.innerHTML = opts.join("");
+}
+
 function renderCategories(){
   catCount.textContent = categories.length ? categories.length+" ta" : "";
   if(!categories.length){ catChips.innerHTML = '<span class="empty" style="padding:6px">Hali kategoriya yo\'q.</span>'; return; }
   catChips.innerHTML = "";
-  categories.forEach(c=>{
+
+  // bo'lim, keyin uning ostidagi kategoriyalar
+  const addChip = (c, isDept)=>{
     const chip = document.createElement("span");
-    chip.className = "chip";
+    chip.className = "chip" + (isDept ? " dept" : "");
     chip.innerHTML = `<span>${esc(catName(c))}</span>
       <button class="edit" title="Tahrirlash">✎</button>
       <button class="x" title="O'chirish">×</button>`;
     chip.querySelector(".edit").onclick = ()=>editCategory(c.id);
     chip.querySelector(".x").onclick = ()=>deleteCategory(c.id);
     catChips.appendChild(chip);
+  };
+
+  rootCats().forEach(d=>{
+    addChip(d, true);
+    childrenOf(d.id).forEach(c => addChip(c, false));
   });
 }
 function fillCategoryDropdown(sel){
-  itemCategory.innerHTML = categories.length
-    ? categories.map(c=>`<option value="${c.id}" ${String(c.id)===String(sel)?"selected":""}>${esc(catName(c))}</option>`).join("")
-    : '<option value="">— avval kategoriya qo\'shing —</option>';
+  if(!categories.length){
+    itemCategory.innerHTML = '<option value="">— avval kategoriya qo\'shing —</option>';
+    return;
+  }
+  // bo'limlar optgroup, ostidagi kategoriyalar option sifatida
+  const roots = categories.filter(c => c.parent === null);
+  const kids  = (id)=> categories.filter(c => String(c.parent) === String(id));
+  let html = "";
+  roots.forEach(d=>{
+    const children = kids(d.id);
+    if(children.length){
+      html += `<optgroup label="${esc(catName(d))}">` +
+        children.map(c=>`<option value="${c.id}" ${String(c.id)===String(sel)?"selected":""}>${esc(catName(c))}</option>`).join("") +
+        `</optgroup>`;
+    } else {
+      // ichki kategoriyasi yo'q bo'lim — o'zini tanlash mumkin
+      html += `<option value="${d.id}" ${String(d.id)===String(sel)?"selected":""}>${esc(catName(d))}</option>`;
+    }
+  });
+  itemCategory.innerHTML = html;
 }
 async function createCategory(){
   const name = newCatName.value.trim();
   if(!name) return showMsg("catMsg","Kategoriya nomini kiriting.","err");
+  const parent = newCatParent.value ? Number(newCatParent.value) : null;
   try{
     const r = await apiFetch(API+"/categories/", {
-      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ name })
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ name, parent })
     });
     if(!r.ok){ const d=await r.json().catch(()=>({})); return showMsg("catMsg", errText(d,"Qo'shishda xatolik."), "err"); }
     newCatName.value=""; hideMsg("catMsg"); await reloadAll();
@@ -428,7 +511,7 @@ async function editCategory(id){
   }catch(e){ showMsg("catMsg","So'rovda xatolik.","err"); }
 }
 async function deleteCategory(id){
-  if(!confirm("Kategoriya o'chirilsinmi? Undagi barcha taomlar ham o'chadi.")) return;
+  if(!confirm("Kategoriya o'chirilsinmi? Undagi barcha mahsulotlar ham o'chadi.")) return;
   try{
     const r = await apiFetch(API+"/categories/"+id+"/", { method:"DELETE" });
     if(!r.ok && r.status!==204) return showMsg("catMsg","O'chirishda xatolik.","err");
@@ -461,13 +544,13 @@ function imgUrl(i){
 
 async function loadItems(){
   menuList.innerHTML = '<div class="empty">Yuklanmoqda…</div>';
-  try{ items = await fetchAll(API+"/menu-items/"); }
-  catch(e){ items=[]; menuList.innerHTML='<div class="empty">Menyuni yuklab bo\'lmadi.</div>'; return; }
+  try{ items = await fetchAll(API+"/products/"); }
+  catch(e){ items=[]; menuList.innerHTML='<div class="empty">Mahsulotlarni yuklab bo\'lmadi.</div>'; return; }
   renderItems();
 }
 function renderItems(){
-  itemCount.textContent = items.length ? items.length+" ta taom" : "";
-  if(!items.length){ menuList.innerHTML = '<div class="empty">Menyu bo\'sh. Yuqorida birinchi taomni qo\'shing.</div>'; return; }
+  itemCount.textContent = items.length ? items.length+" ta mahsulot" : "";
+  if(!items.length){ menuList.innerHTML = '<div class="empty">Katalog bo\'sh. Yuqorida birinchi mahsulotni qo\'shing.</div>'; return; }
 
   const groups = {};
   items.forEach(i=>{ const k = itemCatId(i) ?? "none"; (groups[k] ||= []).push(i); });
@@ -490,7 +573,7 @@ function renderItems(){
 function dishRow(i){
   const price = fmtPrice(i.price);
   const desc = i.description ? `<div class="dish-desc">${esc(i.description)}</div>` : "";
-  const na = i.is_available === false ? `<span class="na-tag">Mavjud emas</span>` : "";
+  const na = i.is_active === false ? `<span class="na-tag">Sotuvda emas</span>` : "";
   const img = imgUrl(i);
   const thumb = img ? `<img class="dish-thumb" src="${esc(img)}" alt="" loading="lazy">` : "";
   return `<div class="dish">
@@ -519,8 +602,10 @@ function previewImage(){
 }
 function resetItemForm(){
   editingItemId = null;
-  itemFormTitle.textContent = "Yangi taom qo'shish";
+  itemFormTitle.textContent = "Yangi mahsulot qo'shish";
   itemName.value=""; itemPrice.value=""; itemDesc.value=""; itemAvailable.checked=true;
+  itemBrand.value=""; itemDiscount.value=""; itemStock.value="0"; itemUnit.value="dona";
+  itemSku.value=""; itemBarcode.value=""; itemWeight.value="";
   itemImage.value=""; showPreview("");
   fillCategoryDropdown();
   itemCancelBtn.classList.add("hidden");
@@ -529,11 +614,18 @@ function resetItemForm(){
 function editItem(id){
   const it = items.find(x=>String(x.id)===String(id)); if(!it) return;
   editingItemId = it.id;
-  itemFormTitle.textContent = "Taomni tahrirlash";
+  itemFormTitle.textContent = "Mahsulotni tahrirlash";
   itemName.value = itemName_(it);
   itemPrice.value = it.price ?? "";
   itemDesc.value = it.description ?? "";
-  itemAvailable.checked = it.is_available !== false;
+  itemAvailable.checked = it.is_active !== false;
+  itemBrand.value = it.brand ?? "";
+  itemDiscount.value = it.discount_price ?? "";
+  itemStock.value = it.stock ?? 0;
+  itemUnit.value = it.unit ?? "dona";
+  itemSku.value = it.sku ?? "";
+  itemBarcode.value = it.barcode ?? "";
+  itemWeight.value = it.weight ?? "";
   itemImage.value=""; showPreview(imgUrl(it));   // joriy rasm; yangi tanlansa almashadi
   fillCategoryDropdown(itemCatId(it));
   itemCancelBtn.classList.remove("hidden");
@@ -545,10 +637,14 @@ async function saveItem(){
   const price = itemPrice.value;
   const category = itemCategory.value;
   const description = itemDesc.value.trim();
-  const is_available = itemAvailable.checked;
-  if(!name) return showMsg("itemMsg","Taom nomini kiriting.","err");
+  const is_active = itemAvailable.checked;
+  if(!name) return showMsg("itemMsg","Mahsulot nomini kiriting.","err");
   if(price==="") return showMsg("itemMsg","Narxni kiriting.","err");
   if(!category) return showMsg("itemMsg","Avval kategoriya qo'shing va tanlang.","err");
+
+  const discount = itemDiscount.value;
+  if(discount !== "" && Number(discount) >= Number(price))
+    return showMsg("itemMsg","Chegirma narxi asosiy narxdan kichik bo'lishi kerak.","err");
 
   // rasm yuklash uchun multipart/form-data ishlatamiz
   const fd = new FormData();
@@ -556,10 +652,17 @@ async function saveItem(){
   fd.append("price", price);
   fd.append("category", category);
   fd.append("description", description);
-  fd.append("is_available", is_available ? "true" : "false");
+  fd.append("is_active", is_active ? "true" : "false");
+  fd.append("brand", itemBrand.value.trim());
+  fd.append("stock", itemStock.value || "0");
+  fd.append("unit", itemUnit.value);
+  if(discount !== "")               fd.append("discount_price", discount);
+  if(itemSku.value.trim())          fd.append("sku", itemSku.value.trim());
+  if(itemBarcode.value.trim())      fd.append("barcode", itemBarcode.value.trim());
+  if(itemWeight.value !== "")       fd.append("weight", itemWeight.value);
   if(itemImage.files && itemImage.files[0]) fd.append("image", itemImage.files[0]);
 
-  const url = editingItemId ? API+"/menu-items/"+editingItemId+"/" : API+"/menu-items/";
+  const url = editingItemId ? API+"/products/"+editingItemId+"/" : API+"/products/";
   const method = editingItemId ? "PATCH" : "POST";
   try{
     // Content-Type qo'lda berilmaydi — brauzer multipart chegarasini o'zi qo'yadi
@@ -570,9 +673,9 @@ async function saveItem(){
   }catch(e){ showMsg("itemMsg","So'rovda xatolik.","err"); }
 }
 async function deleteItem(id){
-  if(!confirm("Taom o'chirilsinmi?")) return;
+  if(!confirm("Mahsulot o'chirilsinmi?")) return;
   try{
-    const r = await apiFetch(API+"/menu-items/"+id+"/", { method:"DELETE" });
+    const r = await apiFetch(API+"/products/"+id+"/", { method:"DELETE" });
     if(!r.ok && r.status!==204) return showMsg("itemMsg","O'chirishda xatolik.","err");
     if(String(editingItemId)===String(id)) resetItemForm();
     await loadItems();
