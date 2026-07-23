@@ -1,6 +1,30 @@
-venv/
-*.sqlite3
-__pycache__/
+# ===== Umumiy =====
 .vscode/
+.idea/
+.DS_Store
+*.log
+.env
+.env.local
+
+# ===== Backend (Django / Python) =====
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
 media/
 static/
+staticfiles/
+
+# ===== Frontend (Node / veb) =====
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# ===== Mobile (React Native / Expo) =====
+.expo/
+.expo-shared/
+mobile/android/app/build/
+mobile/ios/Pods/
